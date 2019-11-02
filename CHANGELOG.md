@@ -1,3 +1,7 @@
+## 1.5.0
+- Added graph possibility
+- added number of forecast values
+
 ## 1.2.0
 
 - Added UI editor
