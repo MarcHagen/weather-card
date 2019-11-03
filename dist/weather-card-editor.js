@@ -55,6 +55,18 @@ export class WeatherCardEditor extends LitElement {
     return this._config.forecast !== false;
   }
 
+  get _graph() {
+    return this._config.graph !== false;
+  }
+
+  get _forecast_max_Column() {
+    return this._config.forecast_max_Column || 9;
+  }
+
+  get _hide_precipitation() {
+    return this._config.hide_precipitation === true;
+  }
+  
   render() {
     if (!this.hass) {
       return html``;
@@ -121,11 +133,32 @@ export class WeatherCardEditor extends LitElement {
             >Show details</ha-switch
           >
           <ha-switch
+            .checked=${this._hide_precipitation}
+            .configValue="${"hide_precipitation"}"
+            @change="${this._valueChanged}"
+            >Hide precipitation</ha-switch
+          >
+          <ha-switch
             .checked=${this._forecast}
             .configValue="${"forecast"}"
             @change="${this._valueChanged}"
             >Show forecast</ha-switch
           >
+          <ha-switch
+            .checked=${this._graph}
+            .configValue="${"graph"}"
+            @change="${this._valueChanged}"
+            >Show graph</ha-switch
+          >
+          <paper-input
+            label="forecast max columns (optional)"
+            type="number"
+            .value="${this._forecast_max_Column}"
+            .configValue="${"forecast_max_Column"}"
+            @value-changed="${this._valueChanged}"
+            min="2"
+            max="20"
+          ></paper-input>
         </div>
       </div>
     `;

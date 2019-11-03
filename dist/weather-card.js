@@ -1,6 +1,119 @@
 const LitElement = Object.getPrototypeOf(customElements.get("hui-view"));
 const html = LitElement.prototype.html;
 
+const locale = {
+  da: {
+    temp: "Temperatur",
+    tempHi: "Temperatur maks",
+    tempLo: "Temperatur nat",
+    precip: "Nedbør",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NØ', 'NØ', 'Ø-NØ', 'Ø', 'Ø-SØ', 'SØ', 'S-SØ',
+      'S', 'S-SV', 'SV', 'V-SV', 'V', 'V-NV', 'NV', 'N-NV', 'N'
+    ]
+  },
+  de: {
+    temp: "temperatur",
+    tempHi: "Höchsttemperatur",
+    tempLo: "Tiefsttemperatur",
+    precip: "Niederschlag",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NO', 'NO', 'O-NO', 'O', 'O-SO', 'SO', 'S-SO',
+      'S', 'S-SW', 'SW', 'W-SW', 'W', 'W-NW', 'NW', 'N-NW', 'N'
+    ]
+  },
+  en: {
+    temp: "Temperature",
+    tempHi: "Temperature max",
+    tempLo: "Temperature min",
+    precip: "Precipitations",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NE', 'NE', 'E-NE', 'E', 'E-SE', 'SE', 'S-SE',
+      'S', 'S-SW', 'SW', 'W-SW', 'W', 'W-NW', 'NW', 'N-NW', 'N'
+    ]
+  },
+  es: {
+    temp: "Temperatura",
+    tempHi: "Temperatura máxima",
+    tempLo: "Temperatura mínima",
+    precip: "Precipitations",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NE', 'NE', 'E-NE', 'E', 'E-SE', 'SE', 'S-SE',
+      'S', 'S-SO', 'SO', 'O-SO', 'O', 'O-NO', 'NO', 'N-NO', 'N'
+    ]
+  },
+  fr: {
+    temp: "Température",
+    tempHi: "Température max",
+    tempLo: "Température min",
+    precip: "Précipitations",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NE', 'NE', 'E-NE', 'E', 'E-SE', 'SE', 'S-SE',
+      'S', 'S-SO', 'SO', 'O-SO', 'O', 'O-NO', 'NO', 'N-NO', 'N'
+    ]
+  },
+  nl: {
+    temp: "temperatuur",
+    tempHi: "Maximum temperatuur",
+    tempLo: "Minimum temperatuur",
+    precip: "Neerslag",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NO', 'NO', 'O-NO', 'O', 'O-ZO', 'ZO', 'Z-ZO',
+      'Z', 'Z-ZW', 'ZW', 'W-ZW', 'W', 'W-NW', 'NW', 'N-NW', 'N'
+    ]
+  },
+  ru: {
+    temp: "Температура",
+    tempHi: "Температура макси",
+    tempLo: "Температура ночью",
+    precip: "Осадки",
+    uPress: "гПа",
+    uSpeed: "м/с",
+    uPrecip: "мм",
+    cardinalDirections: [
+      'С', 'С-СВ', 'СВ', 'В-СВ', 'В', 'В-ЮВ', 'ЮВ', 'Ю-ЮВ',
+      'Ю', 'Ю-ЮЗ', 'ЮЗ', 'З-ЮЗ', 'З', 'З-СЗ', 'СЗ', 'С-СЗ', 'С'
+    ]
+  },
+  sv: {
+    temp: "Temperatur",
+    tempHi: "Max temperatur",
+    tempLo: "Min temperatur",
+    precip: "Nederbörd",
+    uPress: "hPa",
+    uSpeed: "m/s",
+    uPrecip: "mm",
+    cardinalDirections: [
+      'N', 'N-NO', 'NO', 'O-NO', 'O', 'O-SO', 'SO', 'S-SO',
+      'S', 'S-SV', 'SV', 'V-SV', 'V', 'V-NV', 'NV', 'N-NV', 'N'
+    ]
+  }
+};
+
+const cardinalDirectionsIcon = [
+  'mdi:arrow-down', 'mdi:arrow-bottom-left', 'mdi:arrow-left',
+  'mdi:arrow-top-left', 'mdi:arrow-up', 'mdi:arrow-top-right',
+  'mdi:arrow-right', 'mdi:arrow-bottom-right', 'mdi:arrow-down'
+];
+
 const weatherIconsDay = {
   clear: "day",
   "clear-night": "night",
@@ -27,26 +140,6 @@ const weatherIconsNight = {
   partlycloudy: "cloudy-night-3",
   "windy-variant": "cloudy-night-3"
 };
-
-const windDirections = [
-  "N",
-  "NNE",
-  "NE",
-  "ENE",
-  "E",
-  "ESE",
-  "SE",
-  "SSE",
-  "S",
-  "SSW",
-  "SW",
-  "WSW",
-  "W",
-  "WNW",
-  "NW",
-  "NNW",
-  "N"
-];
 
 const fireEvent = (node, type, detail, options) => {
   options = options || {};
@@ -80,10 +173,7 @@ function hasConfigOrEntityChanged(element, changedProps) {
 
 class WeatherCard extends LitElement {
   static get properties() {
-    return {
-      _config: {},
-      hass: {}
-    };
+    return { _config: {}, hass: {} };
   }
 
   static async getConfigElement() {
@@ -99,11 +189,46 @@ class WeatherCard extends LitElement {
     if (!config.entity) {
       throw new Error("Please define a weather entity");
     }
+    
     this._config = config;
+    if (this._config.forecast_max_Column)
+      this._config.forecast_max_Column = parseInt(this._config.forecast_max_Column);
+
+    this.setWeatherObj();
   }
 
+  setWeatherObj() {
+    
+    if (!this.hass)
+      return;
+    
+    this.weatherObj = this._config.entity in this.hass.states ? this.hass.states[this._config.entity] : null;
+    if (!this.weatherObj)
+      return;
+
+    if (!this._config.forecast_max_Column
+        || this._config.forecast_max_Column < 2)
+      this.forecast = this.weatherObj.attributes.forecast.slice(0,9);
+    else
+      this.forecast = this.weatherObj.attributes.forecast.slice(0,this._config.forecast_max_Column);
+
+    //determine if the weather is hourly or daily
+    var diffHours = Math.abs(new Date(this.forecast[0].datetime) - new Date(this.forecast[1].datetime)) / 36e5;
+    if (diffHours === 1)
+      this.mode = 'hourly';
+    else
+      this.mode = 'daily';
+  }
+  
   shouldUpdate(changedProps) {
     return hasConfigOrEntityChanged(this, changedProps);
+  }
+
+  updated(param) {
+    this.setWeatherObj();
+    var chart = this.shadowRoot.getElementById("Chart");
+    if (chart)
+      chart.data = this.ChartData;
   }
 
   render() {
@@ -111,11 +236,11 @@ class WeatherCard extends LitElement {
       return html``;
     }
 
+    this.setWeatherObj();
     this.numberElements = 0;
+    this.lang = this.hass.selectedLanguage || this.hass.language;
 
-    const stateObj = this.hass.states[this._config.entity];
-
-    if (!stateObj) {
+    if (!this.weatherObj) {
       return html`
         <style>
           .not-found {
@@ -131,20 +256,18 @@ class WeatherCard extends LitElement {
         </ha-card>
       `;
     }
-
+    
     return html`
       ${this.renderStyle()}
       <ha-card @click="${this._handleClick}">
-        ${this._config.current !== false ? this.renderCurrent(stateObj) : ""}
-        ${this._config.details !== false ? this.renderDetails(stateObj) : ""}
-        ${this._config.forecast !== false
-          ? this.renderForecast(stateObj.attributes.forecast)
-          : ""}
+        ${this._config.current  !== false ? this.renderCurrent() : ""}
+        ${this._config.details  !== false ? this.renderDetails() : ""}
+        ${this._config.forecast !== false ? this.renderForecast() : ""}
       </ha-card>
     `;
   }
 
-  renderCurrent(stateObj) {
+  renderCurrent() {
     this.numberElements++;
 
     return html`
@@ -152,10 +275,10 @@ class WeatherCard extends LitElement {
         <span
           class="icon bigger"
           style="background: none, url('${this.getWeatherIcon(
-            stateObj.state.toLowerCase(),
+            this.weatherObj.state.toLowerCase(),
             this.hass.states["sun.sun"].state
           )}') no-repeat; background-size: contain;"
-          >${stateObj.state}
+          >${this.weatherObj.state}
         </span>
         ${this._config.name
           ? html`
@@ -164,15 +287,15 @@ class WeatherCard extends LitElement {
           : ""}
         <span class="temp"
           >${this.getUnit("temperature") == "°F"
-            ? Math.round(stateObj.attributes.temperature)
-            : stateObj.attributes.temperature}</span
+            ? Math.round(this.weatherObj.attributes.temperature)
+            : this.weatherObj.attributes.temperature}</span
         >
         <span class="tempc"> ${this.getUnit("temperature")}</span>
       </div>
     `;
   }
 
-  renderDetails(stateObj) {
+  renderDetails() {
     const sun = this.hass.states["sun.sun"];
     let next_rising;
     let next_setting;
@@ -188,28 +311,30 @@ class WeatherCard extends LitElement {
       <ul class="variations ${this.numberElements > 1 ? "spacer" : ""}">
         <li>
           <ha-icon icon="mdi:water-percent"></ha-icon>
-          ${stateObj.attributes.humidity}<span class="unit"> % </span>
+          ${this.weatherObj.attributes.humidity}<span class="unit"> % </span>
         </li>
         <li>
-          <ha-icon icon="mdi:weather-windy"></ha-icon> ${windDirections[
-            parseInt((stateObj.attributes.wind_bearing + 11.25) / 22.5)
-          ]}
-          ${stateObj.attributes.wind_speed}<span class="unit">
+          ${this.getWindDir(this.weatherObj.attributes.wind_bearing)}
+          <ha-icon style="margin-left: 0;" 
+              icon="hass:${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"></ha-icon>
+          ${this.weatherObj.attributes.wind_speed}<span class="unit">
             ${this.getUnit("length")}/h
           </span>
+          <ha-icon icon="mdi:weather-windy"></ha-icon> 
         </li>
         <li>
           <ha-icon icon="mdi:gauge"></ha-icon>
-          ${stateObj.attributes.pressure}
+          ${this.weatherObj.attributes.pressure}
           <span class="unit">
             ${this.getUnit("air_pressure")}
           </span>
         </li>
         <li>
-          <ha-icon icon="mdi:weather-fog"></ha-icon> ${stateObj.attributes
-            .visibility}<span class="unit">
+          ${this.weatherObj.attributes.visibility}
+          <span class="unit">
             ${this.getUnit("length")}
           </span>
+          <ha-icon icon="mdi:weather-fog"></ha-icon>
         </li>
         ${next_rising
           ? html`
@@ -222,8 +347,8 @@ class WeatherCard extends LitElement {
         ${next_setting
           ? html`
               <li>
-                <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
                 ${next_setting.toLocaleTimeString()}
+                <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
               </li>
             `
           : ""}
@@ -231,46 +356,49 @@ class WeatherCard extends LitElement {
     `;
   }
 
-  renderForecast(forecast) {
-    if (!forecast || forecast.length === 0) {
+  renderForecast() {
+    if (!this.forecast || this.forecast.length === 0) {
       return html``;
     }
 
-    const lang = this.hass.selectedLanguage || this.hass.language;
-
     this.numberElements++;
+    if (this._config.graph === true)
+      return this.renderForecastGraph();
+    else
+      return this.renderForecastTable();
+  }
+
+  renderForecastTable() {
     return html`
       <div class="forecast clear ${this.numberElements > 1 ? "spacer" : ""}">
-        ${forecast.slice(0, 5).map(
-          daily => html`
+        ${this.forecast.map(
+          forecast => html`
             <div class="day">
               <div class="dayname">
-                ${new Date(daily.datetime).toLocaleDateString(lang, {
-                  weekday: "short"
-                })}
+                ${this.getDateString(forecast.datetime)}
               </div>
               <i
                 class="icon"
                 style="background: none, url('${this.getWeatherIcon(
-                  daily.condition.toLowerCase()
+                  forecast.condition.toLowerCase()
                 )}') no-repeat; background-size: contain;"
               ></i>
               <div class="highTemp">
-                ${daily.temperature}${this.getUnit("temperature")}
+                ${forecast.temperature}${this.getUnit("temperature")}
               </div>
-              ${daily.templow !== undefined
+              ${forecast.templow !== undefined
                 ? html`
                     <div class="lowTemp">
-                      ${daily.templow}${this.getUnit("temperature")}
+                      ${forecast.templow}${this.getUnit("temperature")}
                     </div>
                   `
                 : ""}
               ${!this._config.hide_precipitation &&
-              daily.precipitation !== undefined &&
-              daily.precipitation !== null
+                forecast.precipitation !== undefined &&
+                forecast.precipitation !== null
                 ? html`
                     <div class="precipitation">
-                      ${daily.precipitation} ${this.getUnit("precipitation")}
+                      ${forecast.precipitation} ${this.getUnit("precipitation")}
                     </div>
                   `
                 : ""}
@@ -281,6 +409,201 @@ class WeatherCard extends LitElement {
     `;
   }
 
+  renderForecastGraph() {
+    this.drawChart();
+
+    return html`
+      <div class="clear ${this.numberElements > 1 ? "spacer" : ""}">
+        <ha-chart-base id="Chart"></ha-chart-base>
+      </div>
+      <div class="conditions">
+        ${this.forecast
+          .map(forecast => html`
+                <i class="icon"
+                  style="background: none, url('${this.getWeatherIcon(
+                    forecast.condition.toLowerCase()
+                  )}');"
+                ></i>
+          `)}
+      </div>
+    `;
+  }
+  
+  drawChart() {
+    if (!this.forecast)
+      return;
+    
+    var that = this;
+    var dateTime = [];
+    var tempHigh = [];
+    var tempLow = [];
+    var precip = [];
+
+    for (var i = 0; i < this.forecast.length; i++) {
+      var d = this.forecast[i];
+      dateTime.push(new Date(d.datetime));
+      tempHigh.push(d.temperature);
+      tempLow.push(d.templow);
+      precip.push(d.precipitation);
+    }
+    var style = getComputedStyle(document.body);
+    var textColor = style.getPropertyValue('--primary-text-color');
+    var dividerColor = style.getPropertyValue('--divider-color');
+    const chartOptions = {
+      type: 'bar',
+      data: {
+        labels: dateTime,
+        datasets: [
+          {
+            label: this.mode == 'hourly' ?  this.ll('temp') : this.ll('tempHi'),
+            type: 'line',
+            data: tempHigh,
+            yAxisID: 'TempAxis',
+            borderWidth: 2.0,
+            lineTension: 0.4,
+            pointRadius: 0.0,
+            pointHitRadius: 5.0,
+            fill: false,
+          },
+          {
+            label: this.ll('tempLo'),
+            type: 'line',
+            data: tempLow,
+            yAxisID: 'TempAxis',
+            borderWidth: 2.0,
+            lineTension: 0.4,
+            pointRadius: 0.0,
+            pointHitRadius: 5.0,
+            fill: false,
+          },
+          {
+            label: this.ll('precip'),
+            type: 'bar',
+            data: precip,
+            yAxisID: 'PrecipAxis',
+          },
+        ]
+      },
+      options: {
+        animation: {
+          duration: 300,
+          easing: 'linear',
+          onComplete: function () {
+            var chartInstance = this.chart,
+              ctx = chartInstance.ctx;
+            ctx.fillStyle = textColor;
+            var fontSize = 10;
+            var fontStyle = 'normal';
+            var fontFamily = 'Roboto';
+            ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            var meta = chartInstance.controller.getDatasetMeta(2);
+            meta.data.forEach(function (bar, index) {
+              var data = (Math.round((chartInstance.data.datasets[2].data[index]) * 10) / 10).toFixed(1);
+              ctx.fillText(data, bar._model.x, bar._model.y - 5);
+            });
+          },
+        },
+        legend: {
+          display: false,
+        },
+        scales: {
+          xAxes: [{
+            type: 'time',
+            maxBarThickness: 15,
+            display: false,
+            ticks: {
+              display: false,
+            },
+            gridLines: {
+              display: false,
+            },
+          },
+          {
+            id: 'DateAxis',
+            position: 'top',
+            gridLines: {
+              display: true,
+              drawBorder: false,
+              color: dividerColor,
+            },
+            ticks: {
+              display: true,
+              source: 'labels',
+              autoSkip: true,
+              fontColor: textColor,
+              maxRotation: 0,
+              callback: function(value, index, values) {
+                return that.getDateString.call(that, value);
+              },
+            },
+          }],
+          yAxes: [{
+            id: 'TempAxis',
+            position: 'left',
+            gridLines: {
+              display: true,
+              drawBorder: false,
+              color: dividerColor,
+              borderDash: [1,3],
+            },
+            ticks: {
+              display: true,
+              fontColor: textColor,
+            },
+            afterFit: function(scaleInstance) {
+              scaleInstance.width = 28;
+            },
+          },
+          {
+            id: 'PrecipAxis',
+            position: 'right',
+            gridLines: {
+              display: false,
+              drawBorder: false,
+              color: dividerColor,
+            },
+            ticks: {
+              display: false,
+              min: 0,
+              suggestedMax: 20,
+              fontColor: textColor,
+            },
+            afterFit: function(scaleInstance) {
+              scaleInstance.width = 15;
+            },
+          }],
+        },
+        tooltips: {
+          mode: 'index',
+          callbacks: {
+            title: function (items, data) {
+              const item = items[0];
+              const date = data.labels[item.index];
+              return new Date(date).toLocaleDateString(locale, {
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long',
+                hour: 'numeric',
+                minute: 'numeric',
+              });
+            },
+            label: function(tooltipItems, data) {
+              var label = data.datasets[tooltipItems.datasetIndex].label || '';
+              if (data.datasets[2].label == label) {
+                return label + ': ' + (tooltipItems.yLabel ?
+                  (tooltipItems.yLabel + ' ' + that.getUnit("precipitation")) : ('0 ' + that.getUnit("precipitation")));
+              }
+              return label + ': ' + tooltipItems.yLabel + ' ' + that.getUnit("temperature");
+            },
+          },
+        },
+      },
+    };
+    this.ChartData = chartOptions;
+  }
+  
   getWeatherIcon(condition, sun) {
     return `${
       this._config.icons
@@ -293,18 +616,38 @@ class WeatherCard extends LitElement {
     }.svg`;
   }
 
+  getWindDirIcon(degree) {
+    return cardinalDirectionsIcon[parseInt((degree + 22.5) / 45.0)];
+  }
+
+  getWindDir(degree) {
+    if (locale[this.lang] === undefined)
+      return locale.en.cardinalDirections[parseInt((degree + 11.25) / 22.5)];
+    return locale[this.lang]['cardinalDirections'][parseInt((degree + 11.25) / 22.5)];
+  }
+
   getUnit(measure) {
     const lengthUnit = this.hass.config.unit_system.length;
     switch (measure) {
       case "air_pressure":
-        return lengthUnit === "km" ? "hPa" : "inHg";
+        return lengthUnit === "km" ? this.ll('uPress') : "inHg";
       case "length":
         return lengthUnit;
       case "precipitation":
-        return lengthUnit === "km" ? "mm" : "in";
+        return lengthUnit === "km" ? this.ll('uPrecip') : "in";
       default:
         return this.hass.config.unit_system[measure] || "";
     }
+  }
+
+  getDateString(datetime) {
+  
+    if (this.mode == 'hourly') {
+      return new Date(datetime).toLocaleTimeString(this.lang,
+                            { hour: 'numeric' });
+    }
+    return new Date(datetime).toLocaleDateString(this.lang,
+                            { weekday: 'short' });
   }
 
   _handleClick() {
@@ -312,7 +655,7 @@ class WeatherCard extends LitElement {
   }
 
   getCardSize() {
-    return 3;
+    return this.numberElements || 3;
   }
 
   renderStyle() {
@@ -338,7 +681,7 @@ class WeatherCard extends LitElement {
 
         .title {
           position: absolute;
-          left: 3em;
+          left: 2.8em;
           top: 0.6em;
           font-weight: 300;
           font-size: 3em;
@@ -366,7 +709,8 @@ class WeatherCard extends LitElement {
 
         .current {
           padding-top: 1.2em;
-          margin-bottom: 3.5em;
+          /*margin-bottom: 3.5em;*/
+          height: 4em;
         }
 
         .variations {
@@ -398,7 +742,6 @@ class WeatherCard extends LitElement {
         .variations li:nth-child(2n) ha-icon {
           margin-right: 0;
           margin-left: 8px;
-          float: right;
         }
 
         .unit {
@@ -451,6 +794,7 @@ class WeatherCard extends LitElement {
           width: 10em;
           height: 10em;
           margin-top: -4em;
+          margin-left: -1em;
           position: absolute;
           left: 0em;
         }
@@ -459,10 +803,11 @@ class WeatherCard extends LitElement {
           width: 50px;
           height: 50px;
           margin-right: 5px;
+          margin-bottom: -12px;
           display: inline-block;
           vertical-align: middle;
           background-size: contain;
-          background-position: center center;
+          background-position: center center !important;
           background-repeat: no-repeat;
           text-indent: -9999px;
         }
@@ -478,8 +823,23 @@ class WeatherCard extends LitElement {
           word-wrap: break-word;
           width: 30%;
         }
+
+        .conditions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 0px -12px 0px 5px;
+        }
+
       </style>
     `;
   }
+
+  ll(str) {
+    if (locale[this.lang] === undefined)
+      return locale.en[str];
+    return locale[this.lang][str];
+  }
 }
+
 customElements.define("weather-card", WeatherCard);
