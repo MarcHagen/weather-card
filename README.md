@@ -15,7 +15,7 @@ You have 3 options, HACS hosted or self hosted (manual). The first option needs 
 
 # HACS
 
-The easiest way it's to (HACS)[https://hacs.xyz/]
+The easiest way it's to [HACS](https://hacs.xyz/)
 Add the repos address in settings :
 https://github.com/bobzer/weather-card
 
