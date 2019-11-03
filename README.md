@@ -13,6 +13,12 @@ Thanks for all picking this card up.
 
 You have 2 options, hosted or self hosted (manual). The first option needs internet and will update itself.
 
+# HACS
+
+The easiest way it's to (HACS)[https://hacs.xyz/]
+Add the repos address in settings :
+https://github.com/bobzer/weather-card
+
 # Hosted:
 
 Add the following to resources in your lovelace config:
