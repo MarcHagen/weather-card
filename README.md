@@ -11,7 +11,7 @@ Thanks for all picking this card up.
 
 ## Installation:
 
-You have 2 options, hosted or self hosted (manual). The first option needs internet and will update itself.
+You have 3 options, HACS hosted or self hosted (manual). The first option needs internet and will update itself.
 
 # HACS
 
