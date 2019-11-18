@@ -793,7 +793,7 @@ class WeatherCard extends LitElement {
         .icon.bigger {
           width: 10em;
           height: 10em;
-          margin-top: -4em;
+          margin-top: -4.7em;
           margin-left: -1em;
           position: absolute;
           left: 0em;
