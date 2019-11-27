@@ -340,14 +340,14 @@ class WeatherCard extends LitElement {
           ? html`
               <li>
                 <ha-icon icon="mdi:weather-sunset-up"></ha-icon>
-                ${next_rising.toLocaleTimeString()}
+                ${next_rising.toLocaleTimeString(this.lang)}
               </li>
             `
           : ""}
         ${next_setting
           ? html`
               <li>
-                ${next_setting.toLocaleTimeString()}
+                ${next_setting.toLocaleTimeString(this.lang)}
                 <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
               </li>
             `
