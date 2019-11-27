@@ -238,7 +238,7 @@ class WeatherCard extends LitElement {
 
     this.setWeatherObj();
     this.numberElements = 0;
-    this.lang = this.hass.selectedLanguage || this.hass.language;
+    this.lang = this._config.language === undefined || this._config.language === 'hacs' ? this.hass.selectedLanguage || this.hass.language : this._config.language
 
     if (!this.weatherObj) {
       return html`
