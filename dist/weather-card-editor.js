@@ -42,6 +42,10 @@ export class WeatherCardEditor extends LitElement {
   get _icons() {
     return this._config.icons || "";
   }
+  
+  get _language() {
+    return this._config.language || "";
+  }
 
   get _current() {
     return this._config.current !== false;
@@ -75,6 +79,10 @@ export class WeatherCardEditor extends LitElement {
     const entities = Object.keys(this.hass.states).filter(
       (eid) => eid.substr(0, eid.indexOf(".")) === "weather"
     );
+    
+    const languages = [
+      'hacs', 'da', 'de', 'en', 'es', 'fr', 'nl', 'ru', 'sv'
+    ]
 
     return html`
       <div class="card-config">
@@ -91,6 +99,22 @@ export class WeatherCardEditor extends LitElement {
             .configValue="${"icons"}"
             @value-changed="${this._valueChanged}"
           ></paper-input>
+          <paper-dropdown-menu
+            label="Language"
+            @value-changed="${this._valueChanged}"
+            .configValue="${"language"}"
+          >
+            <paper-listbox
+              slot="dropdown-content"
+              .selected="${languages.indexOf(this._language)}"
+            >
+              ${languages.map((lang) => {
+                return html`
+                  <paper-item>${lang}</paper-item>
+                `;
+              })}
+            </paper-listbox>
+          </paper-dropdown-menu>
           ${customElements.get("ha-entity-picker")
             ? html`
                 <ha-entity-picker
