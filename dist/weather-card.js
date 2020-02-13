@@ -1,5 +1,6 @@
 const LitElement = Object.getPrototypeOf(customElements.get("hui-view"));
 const html = LitElement.prototype.html;
+const css = LitElement.prototype.css;
 
 const locale = {
   da: {
@@ -189,7 +190,7 @@ class WeatherCard extends LitElement {
     if (!config.entity) {
       throw new Error("Please define a weather entity");
     }
-    
+
     this._config = config;
     if (this._config.forecast_max_Column)
       this._config.forecast_max_Column = parseInt(this._config.forecast_max_Column);
@@ -198,10 +199,10 @@ class WeatherCard extends LitElement {
   }
 
   setWeatherObj() {
-    
+
     if (!this.hass)
       return;
-    
+
     this.weatherObj = this._config.entity in this.hass.states ? this.hass.states[this._config.entity] : null;
     if (!this.weatherObj)
       return;
@@ -219,7 +220,7 @@ class WeatherCard extends LitElement {
     else
       this.mode = 'daily';
   }
-  
+
   shouldUpdate(changedProps) {
     return hasConfigOrEntityChanged(this, changedProps);
   }
@@ -256,9 +257,8 @@ class WeatherCard extends LitElement {
         </ha-card>
       `;
     }
-    
+
     return html`
-      ${this.renderStyle()}
       <ha-card @click="${this._handleClick}">
         ${this._config.current  !== false ? this.renderCurrent() : ""}
         ${this._config.details  !== false ? this.renderDetails() : ""}
@@ -428,11 +428,11 @@ class WeatherCard extends LitElement {
       </div>
     `;
   }
-  
+
   drawChart() {
     if (!this.forecast)
       return;
-    
+
     var that = this;
     var dateTime = [];
     var tempHigh = [];
@@ -603,7 +603,7 @@ class WeatherCard extends LitElement {
     };
     this.ChartData = chartOptions;
   }
-  
+
   getWeatherIcon(condition, sun) {
     return `${
       this._config.icons
@@ -641,7 +641,7 @@ class WeatherCard extends LitElement {
   }
 
   getDateString(datetime) {
-  
+
     if (this.mode == 'hourly') {
       return new Date(datetime).toLocaleTimeString(this.lang,
                             { hour: 'numeric' });
@@ -658,8 +658,8 @@ class WeatherCard extends LitElement {
     return this.numberElements || 3;
   }
 
-  renderStyle() {
-    return html`
+  static get styles() {
+    return css`
       <style>
         ha-card {
           cursor: pointer;
