@@ -26,7 +26,7 @@ If you want to use your local icons add the location to the icons:
 ```yaml
 type: custom:weather-card
 entity: weather.yourweatherentity
-icons: "/community_plugin/weather-card/icons/"
+icons: "/community_plugin/weather-card/icons/animated/"
 ```
 
 You can choose wich elements of the weather card you want to show:
