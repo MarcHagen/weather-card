@@ -2,10 +2,15 @@
 
 Originally created for the [old UI](https://community.home-assistant.io/t/custom-ui-weather-state-card-with-a-question/23008) converted by @arsaboo and @ciotlosm to [Lovelace](https://community.home-assistant.io/t/custom-ui-weather-state-card-with-a-question/23008/291) and now converted to Lit to make it even better.
 Was merge with [lovelace weather card chart](https://github.com/sgttrs/lovelace-weather-card-chart) to get graph and translation
+This version is based on multiple repo's: 
+- [bobzer/weather-card](https://github.com/bobzer/weather-card)
+- [bramkragten/weather-card](https://github.com/bramkragten/weather-card)
 
-This card uses the awesome [animated SVG weather icons by amCharts](https://www.amcharts.com/free-animated-svg-weather-icons/).
+This card uses the awesome [animated SVG weather icons by amCharts](https://www.amcharts.com/free-animated-svg-weather-icons/).  
+But there is a newer version of the icons. These cannot be downloaded from but site, but from here: [amcharts/weather](https://github.com/amcharts/weather/tree/master/assets/img)  
+Download the weather and weather-animated. These versions are included in this package.
 
-![Weather Card](https://raw.githubusercontent.com/bobzer/weather-card/master/weather-card.png)
+![Weather Card](https://raw.githubusercontent.com/MarcHagen/weather-card/master/weather-card.png)
 
 Thanks for all picking this card up.
 
@@ -17,28 +22,28 @@ You have 3 options, HACS hosted or self hosted (manual). The first option needs 
 
 The easiest way it's to [HACS](https://hacs.xyz/)
 Add the repos address in settings :
-https://github.com/bobzer/weather-card
+https://github.com/MarcHagen/weather-card
 
 # Hosted:
 
 Add the following to resources in your lovelace config:
 
 ```yaml
-- url: https://cdn.jsdelivr.net/gh/bobzer/weather-card/dist/weather-card.min.js
+- url: https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/weather-card.min.js
   type: module
 ```
 
 # Manual:
 
-1. Download the [weather-card.js](https://raw.githubusercontent.com/bobzer/weather-card/v1.5.0/dist/weather-card.js) to `/config/www/custom-lovelace/weather-card/`. (or an other folder in `/config/www/`)
+1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/v1.5.0/dist/weather-card.js) to `/config/www/custom-lovelace/weather-card/`. (or an other folder in `/config/www/`)
 2. Save, the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/custom-lovelace/weather-card/icons/` (or an other folder in `/config/www/`)
-3. If you use Lovelace in storage mode, and want to use the editor, download the [weather-card-editor.js](https://raw.githubusercontent.com/bobzer/weather-card/v1.5.0/dist/weather-card-editor.js) to `/config/www/custom-lovelace/weather-card/`. (or the folder you used above)
+3. If you use Lovelace in storage mode, and want to use the editor, download the [weather-card-editor.js](https://raw.githubusercontent.com/MarcHagen/weather-card/v1.5.0/dist/weather-card-editor.js) to `/config/www/custom-lovelace/weather-card/`. (or the folder you used above)
 
 Add the following to resources in your lovelace config:
 
 ```yaml
 resources:
-  - url: /local/custom-lovelace/weather-card/weather-card.js
+  - url: /local/weather-card/weather-card.js
     type: module
 ```
 
@@ -57,7 +62,7 @@ If you want to use your local icons add the location to the icons:
 ```yaml
 type: custom:weather-card
 entity: weather.yourweatherentity
-icons: "/local/custom-lovelace/weather-card/icons/"
+icons: "/community_plugin/weather-card/icons/"
 ```
 
 You can choose wich elements of the weather card you want to show:
