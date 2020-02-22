@@ -40,7 +40,7 @@ The 3 different rows, being:
 ```yaml
 type: custom:weather-card
 entity: weather.yourweatherentity
-icons: "/community_plugin/weather-card/icons/"
+icons: /community_plugin/weather-card/icons/animated/
 current: true
 details: false
 forecast: true

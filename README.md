@@ -35,9 +35,9 @@ Add the following to resources in your lovelace config:
 
 # Manual:
 
-1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/v1.5.0/dist/weather-card.js) to `/config/www/custom-lovelace/weather-card/`. (or an other folder in `/config/www/`)
-2. Save, the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/custom-lovelace/weather-card/icons/` (or an other folder in `/config/www/`)
-3. If you use Lovelace in storage mode, and want to use the editor, download the [weather-card-editor.js](https://raw.githubusercontent.com/MarcHagen/weather-card/v1.5.0/dist/weather-card-editor.js) to `/config/www/custom-lovelace/weather-card/`. (or the folder you used above)
+1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/v1.5.0/dist/weather-card.js) to `/config/www/weather-card/icons/`. (or an other folder in `/config/www/`)
+2. Save, the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/weather-card/icons/` (or an other folder in `/config/www/`)
+3. If you use Lovelace in storage mode, and want to use the editor, download the [weather-card-editor.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card-editor.js) to `/config/www/weather-card/`. (or the folder you used above)
 
 Add the following to resources in your lovelace config:
 
@@ -62,7 +62,7 @@ If you want to use your local icons add the location to the icons:
 ```yaml
 type: custom:weather-card
 entity: weather.yourweatherentity
-icons: "/community_plugin/weather-card/icons/"
+icons: "/local/weather-card/icons/animated/"
 ```
 
 You can choose wich elements of the weather card you want to show:
