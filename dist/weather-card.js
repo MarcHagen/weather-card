@@ -320,8 +320,7 @@ class WeatherCard extends LitElement {
             icon="hass:${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
           ></ha-icon>
           ${this.weatherObj.attributes.wind_speed}
-          <span class="unit">${this.getUnit("length")}/h</span>
-          | ${this.getWindForce()} <span class="unit">Bft</span>
+          <span class="unit">${this.getUnit("length")}/h</span>${this.getWindForce()}
           <ha-icon icon="mdi:weather-windy"></ha-icon> 
         </li>
         <li>
@@ -629,20 +628,25 @@ class WeatherCard extends LitElement {
   }
 
   getWindForce() {
-    // TODO: Calculate Bft from wind_speed. This can be variable in mph/fs or kph/ms or knots
-    //return this.weatherObj.attributes.wind_speed
-    return 'x'
+    if (this.getUnit('length') !== km) {
+      return html``;
+    }
+
+    const force = Math.ceil(Math.cbrt(Math.pow((this.weatherObj.attributes.wind_speed / 3.6) / 0.836, 2)))
+    return html` | ${force} <span class="unit">Bft</span>`;
   }
 
   getUnit(measure) {
     const lengthUnit = this.hass.config.unit_system.length;
     switch (measure) {
       case "air_pressure":
-        return lengthUnit === "km" ? this.ll('uPress') : "inHg";
+        return lengthUnit === "km" ? this.ll('uPress') : 'mbar';
       case "length":
         return lengthUnit;
       case "precipitation":
-        return lengthUnit === "km" ? this.ll('uPrecip') : "in";
+        return lengthUnit === "km" ? this.ll('uPrecip') : 'in';
+      case 'intensity':
+        return lengthUnit === 'km' ? this.ll('uPrecip') + '/h' : 'in/h'
       default:
         return this.hass.config.unit_system[measure] || "";
     }
