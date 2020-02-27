@@ -1,6 +1,8 @@
 ## 1.6.1
 - Added option for locale
 - Added wind force for metric (Bft)
+- Fixed wierd spacing for weather icons
+- Added 1.0.2 version of animated icons
 - General cleanup
 
 ## 1.5.0
