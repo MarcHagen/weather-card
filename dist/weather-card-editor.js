@@ -42,7 +42,7 @@ export class WeatherCardEditor extends LitElement {
   get _icons() {
     return this._config.icons || "";
   }
-  
+
   get _language() {
     return this._config.language || "";
   }
@@ -63,14 +63,14 @@ export class WeatherCardEditor extends LitElement {
     return this._config.graph !== false;
   }
 
-  get _forecast_max_Column() {
-    return this._config.forecast_max_Column || 9;
+  get _forecast_max_column() {
+    return this._config.forecast_max_column || 9;
   }
 
   get _hide_precipitation() {
     return this._config.hide_precipitation === true;
   }
-  
+
   render() {
     if (!this.hass) {
       return html``;
@@ -79,7 +79,7 @@ export class WeatherCardEditor extends LitElement {
     const entities = Object.keys(this.hass.states).filter(
       eid => eid.substr(0, eid.indexOf(".")) === "weather"
     );
-    
+
     const languages = [
       'hacs', 'da', 'de', 'en', 'es', 'fr', 'nl', 'ru', 'sv'
     ]
@@ -177,8 +177,8 @@ export class WeatherCardEditor extends LitElement {
           <paper-input
             label="forecast max columns (optional)"
             type="number"
-            .value="${this._forecast_max_Column}"
-            .configValue="${"forecast_max_Column"}"
+            .value="${this._forecast_max_column}"
+            .configValue="${"forecast_max_column"}"
             @value-changed="${this._valueChanged}"
             min="2"
             max="20"

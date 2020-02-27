@@ -192,8 +192,8 @@ class WeatherCard extends LitElement {
     }
 
     this._config = config;
-    if (this._config.forecast_max_Column)
-      this._config.forecast_max_Column = parseInt(this._config.forecast_max_Column);
+    if (this._config.forecast_max_column)
+      this.forecast_max_column = parseInt(this._config.forecast_max_column);
 
     this.setWeatherObj();
   }
@@ -207,14 +207,14 @@ class WeatherCard extends LitElement {
     if (!this.weatherObj)
       return;
 
-    if (!this._config.forecast_max_Column
-        || this._config.forecast_max_Column < 2)
+    if (!this.forecast_max_column
+        || this.forecast_max_column < 2)
       this.forecast = this.weatherObj.attributes.forecast.slice(0,9);
     else
-      this.forecast = this.weatherObj.attributes.forecast.slice(0,this._config.forecast_max_Column);
+      this.forecast = this.weatherObj.attributes.forecast.slice(0,this.forecast_max_column);
 
     //determine if the weather is hourly or daily
-    var diffHours = Math.abs(new Date(this.forecast[0].datetime) - new Date(this.forecast[1].datetime)) / 36e5;
+    let diffHours = Math.abs(new Date(this.forecast[0].datetime) - new Date(this.forecast[1].datetime)) / 36e5;
     if (diffHours === 1)
       this.mode = 'hourly';
     else
@@ -227,7 +227,7 @@ class WeatherCard extends LitElement {
 
   updated(param) {
     this.setWeatherObj();
-    var chart = this.shadowRoot.getElementById("Chart");
+    let chart = this.shadowRoot.getElementById("Chart");
     if (chart)
       chart.data = this.ChartData;
   }
@@ -315,11 +315,13 @@ class WeatherCard extends LitElement {
         </li>
         <li>
           ${this.getWindDir(this.weatherObj.attributes.wind_bearing)}
-          <ha-icon style="margin-left: 0;" 
-              icon="hass:${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"></ha-icon>
-          ${this.weatherObj.attributes.wind_speed}<span class="unit">
-            ${this.getUnit("length")}/h
-          </span>
+          <ha-icon 
+            style="margin-left: 0;" 
+            icon="hass:${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
+          ></ha-icon>
+          ${this.weatherObj.attributes.wind_speed}
+          <span class="unit">${this.getUnit("length")}/h</span>
+          | ${this.getWindForce()} <span class="unit">Bft</span>
           <ha-icon icon="mdi:weather-windy"></ha-icon> 
         </li>
         <li>
@@ -433,29 +435,29 @@ class WeatherCard extends LitElement {
     if (!this.forecast)
       return;
 
-    var that = this;
-    var dateTime = [];
-    var tempHigh = [];
-    var tempLow = [];
-    var precip = [];
+    const that = this;
+    let dateTime = [];
+    let tempHigh = [];
+    let tempLow = [];
+    let precip = [];
 
-    for (var i = 0; i < this.forecast.length; i++) {
-      var d = this.forecast[i];
+    for (let i = 0; i < this.forecast.length; i++) {
+      let d = this.forecast[i];
       dateTime.push(new Date(d.datetime));
       tempHigh.push(d.temperature);
       tempLow.push(d.templow);
       precip.push(d.precipitation);
     }
-    var style = getComputedStyle(document.body);
-    var textColor = style.getPropertyValue('--primary-text-color');
-    var dividerColor = style.getPropertyValue('--divider-color');
+    const style = getComputedStyle(document.body);
+    const textColor = style.getPropertyValue('--primary-text-color');
+    const dividerColor = style.getPropertyValue('--divider-color');
     const chartOptions = {
       type: 'bar',
       data: {
         labels: dateTime,
         datasets: [
           {
-            label: this.mode == 'hourly' ?  this.ll('temp') : this.ll('tempHi'),
+            label: this.mode === 'hourly' ?  this.ll('temp') : this.ll('tempHi'),
             type: 'line',
             data: tempHigh,
             yAxisID: 'TempAxis',
@@ -489,18 +491,18 @@ class WeatherCard extends LitElement {
           duration: 300,
           easing: 'linear',
           onComplete: function () {
-            var chartInstance = this.chart,
-              ctx = chartInstance.ctx;
+            let chartInstance = this.chart,
+                ctx = chartInstance.ctx;
             ctx.fillStyle = textColor;
-            var fontSize = 10;
-            var fontStyle = 'normal';
-            var fontFamily = 'Roboto';
+            const fontSize = 10;
+            const fontStyle = 'normal';
+            const fontFamily = 'Roboto';
             ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            var meta = chartInstance.controller.getDatasetMeta(2);
+            const meta = chartInstance.controller.getDatasetMeta(2);
             meta.data.forEach(function (bar, index) {
-              var data = (Math.round((chartInstance.data.datasets[2].data[index]) * 10) / 10).toFixed(1);
+              const data = (Math.round((chartInstance.data.datasets[2].data[index]) * 10) / 10).toFixed(1);
               ctx.fillText(data, bar._model.x, bar._model.y - 5);
             });
           },
@@ -590,8 +592,8 @@ class WeatherCard extends LitElement {
               });
             },
             label: function(tooltipItems, data) {
-              var label = data.datasets[tooltipItems.datasetIndex].label || '';
-              if (data.datasets[2].label == label) {
+              const label = data.datasets[tooltipItems.datasetIndex].label || '';
+              if (data.datasets[2].label === label) {
                 return label + ': ' + (tooltipItems.yLabel ?
                   (tooltipItems.yLabel + ' ' + that.getUnit("precipitation")) : ('0 ' + that.getUnit("precipitation")));
               }
@@ -610,7 +612,7 @@ class WeatherCard extends LitElement {
         ? this._config.icons
         : "https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/"
     }${
-      sun && sun == "below_horizon"
+      sun && sun === "below_horizon"
         ? weatherIconsNight[condition]
         : weatherIconsDay[condition]
     }.svg`;
@@ -624,6 +626,12 @@ class WeatherCard extends LitElement {
     if (locale[this.lang] === undefined)
       return locale.en.cardinalDirections[parseInt((degree + 11.25) / 22.5)];
     return locale[this.lang]['cardinalDirections'][parseInt((degree + 11.25) / 22.5)];
+  }
+
+  getWindForce() {
+    // TODO: Calculate Bft from wind_speed. This can be variable in mph/fs or kph/ms or knots
+    //return this.weatherObj.attributes.wind_speed
+    return 'x'
   }
 
   getUnit(measure) {
@@ -642,7 +650,7 @@ class WeatherCard extends LitElement {
 
   getDateString(datetime) {
 
-    if (this.mode == 'hourly') {
+    if (this.mode === 'hourly') {
       return new Date(datetime).toLocaleTimeString(this.lang,
                             { hour: 'numeric' });
     }
@@ -709,7 +717,7 @@ class WeatherCard extends LitElement {
       .current {
         padding-top: 1.2em;
         /*margin-bottom: 3.5em;*/
-        height: 4em;
+        height: 5.5em;
       }
 
       .variations {
@@ -789,46 +797,47 @@ class WeatherCard extends LitElement {
         font-weight: 300;
       }
 
-        .icon.bigger {
-          width: 10em;
-          height: 10em;
-          margin-top: -4.7em;
-          margin-left: -1em;
-          position: absolute;
-          left: 0em;
-        }
+      .icon.bigger {
+        width: 10em;
+        height: 10em;
+        margin-top: -3.7em;
+        margin-left: 0;
+        position: absolute;
+        left: 0em;
+      }
 
-        .icon {
-          width: 50px;
-          height: 50px;
-          margin-right: 5px;
-          margin-bottom: -12px;
-          display: inline-block;
-          vertical-align: middle;
-          background-size: contain;
-          background-position: center center !important;
-          background-repeat: no-repeat;
-          text-indent: -9999px;
-        }
+      .icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 0px;
+        margin-bottom: -12px;
+        margin-top: -20px;
+        display: inline-block;
+        vertical-align: middle;
+        background-size: contain;
+        background-position: center center !important;
+        background-repeat: no-repeat;
+        text-indent: -9999px;
+      }
 
-        .weather {
-          font-weight: 300;
-          font-size: 1.5em;
-          color: var(--primary-text-color);
-          text-align: left;
-          position: absolute;
-          top: -0.5em;
-          left: 6em;
-          word-wrap: break-word;
-          width: 30%;
-        }
+      .weather {
+        font-weight: 300;
+        font-size: 1.5em;
+        color: var(--primary-text-color);
+        text-align: left;
+        position: absolute;
+        top: -0.5em;
+        left: 6em;
+        word-wrap: break-word;
+        width: 30%;
+      }
 
-        .conditions {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin: 0px -12px 0px 5px;
-        }
+      .conditions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0px -12px 0px 5px;
+      }
     `;
   }
 
