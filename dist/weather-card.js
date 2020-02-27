@@ -628,7 +628,7 @@ class WeatherCard extends LitElement {
   }
 
   getWindForce() {
-    if (this.getUnit('length') !== km) {
+    if (this.getUnit('length') !== 'km') {
       return html``;
     }
 
