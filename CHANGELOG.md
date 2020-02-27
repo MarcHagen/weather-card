@@ -1,3 +1,8 @@
+## 1.6.1
+- Added option for locale
+- Added wind force for metric (Bft)
+- General cleanup
+
 ## 1.5.0
 - Added graph possibility
 - added number of forecast values
