@@ -420,11 +420,7 @@ class WeatherCard extends LitElement {
       <div class="conditions">
         ${this.forecast
           .map(forecast => html`
-                <i class="icon"
-                  style="background: none, url('${this.getWeatherIcon(
-                    forecast.condition.toLowerCase()
-                  )}');"
-                ></i>
+             <i class="icon" style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase())}') no-repeat; background-size: contain"></i>
           `)}
       </div>
     `;
@@ -841,6 +837,10 @@ class WeatherCard extends LitElement {
         justify-content: space-between;
         align-items: center;
         margin: 0px -12px 0px 5px;
+      }
+      
+      .conditions .icon {
+        margin-top: -10px;
       }
     `;
   }

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## 1.6.3 - (FUTURE)
 
+### Bug Fixes
+
+* [#1](https://github.com/MarcHagen/weather-card/issues/1) - Fixed icons under graph looking weird
+
 ## 1.6.2 - 2020-02-17
 - Added option for locale
 - Added wind force for metric (Bft)
