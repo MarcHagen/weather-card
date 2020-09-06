@@ -309,15 +309,15 @@ class WeatherCard extends LitElement {
 
     return html`
       <ul class="variations ${this.numberElements > 1 ? "spacer" : ""}">
-        <li>
+        <li style="width: 40%;">
           <ha-icon icon="mdi:water-percent"></ha-icon>
           ${this.weatherObj.attributes.humidity}<span class="unit"> % </span>
         </li>
-        <li>
+        <li style="width: 60%;">
           ${this.getWindDir(this.weatherObj.attributes.wind_bearing)}
           <ha-icon 
             style="margin-left: 0;" 
-            icon="hass:${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
+            icon="${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
           ></ha-icon>
           ${this.weatherObj.attributes.wind_speed}
           <span class="unit">${this.getUnit("length")}/h</span>${this.getWindForce()}
@@ -746,10 +746,10 @@ class WeatherCard extends LitElement {
         text-align: right;
       }
 
-        .variations li:nth-child(2n) ha-icon {
-          margin-right: 0;
-          margin-left: 8px;
-        }
+      .variations li:nth-child(2n) ha-icon {
+         margin-right: 0;
+         margin-left: 8px;
+      }
 
       .unit {
         font-size: 0.8em;
