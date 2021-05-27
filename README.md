@@ -30,7 +30,7 @@ https://github.com/MarcHagen/weather-card
 Add the following to resources in your lovelace config:
 
 ```yaml
-- url: https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/weather-card.min.js
+- url: https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/src/weather-card.min.js
   type: module
 ```
 

@@ -1,88 +1,83 @@
-const fireEvent = (node, type, detail, options) => {
-  options = options || {};
-  detail = detail === null || detail === undefined ? {} : detail;
-  const event = new Event(type, {
-    bubbles: options.bubbles === undefined ? true : options.bubbles,
-    cancelable: Boolean(options.cancelable),
-    composed: options.composed === undefined ? true : options.composed
-  });
-  event.detail = detail;
-  node.dispatchEvent(event);
-  return event;
-};
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/camelcase */
+import {
+  LitElement,
+  html,
+  customElement,
+  property,
+  TemplateResult,
+  CSSResult,
+  css,
+  state,
+} from 'lit-element';
+import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
-if (
-  !customElements.get("ha-switch") &&
-  customElements.get("paper-toggle-button")
-) {
-  customElements.define("ha-switch", customElements.get("paper-toggle-button"));
-}
+import { WeatherCardConfig } from './types';
 
-const LitElement = Object.getPrototypeOf(customElements.get("hui-view"));
-const html = LitElement.prototype.html;
-const css = LitElement.prototype.css;
+@customElement('weather-card-editor')
+export class WeatherCardEditor extends LitElement implements LovelaceCardEditor {
+  @property({ attribute: false }) public hass?: HomeAssistant;
+  @state() private _config?: WeatherCardConfig;
+  @state() private _toggle?: boolean;
+  @state() private _helpers?: any;
+  private _initialized = false;
 
-export class WeatherCardEditor extends LitElement {
-  setConfig(config) {
-    this._config = { ...config };
+  public setConfig(config: WeatherCardConfig): void {
+    this._config = config;
   }
 
-  static get properties() {
-    return { hass: {}, _config: {} };
-  }
-
-  get _entity() {
-    return this._config.entity || "";
-  }
-
-  get _name() {
-    return this._config.name || "";
-  }
-
-  get _icons() {
-    return this._config.icons || "";
-  }
-
-  get _language() {
-    return this._config.language || "";
-  }
-
-  get _current() {
-    return this._config.current !== false;
-  }
-
-  get _details() {
-    return this._config.details !== false;
-  }
-
-  get _forecast() {
-    return this._config.forecast !== false;
-  }
-
-  get _graph() {
-    return this._config.graph !== false;
-  }
-
-  get _forecast_max_column() {
-    return this._config.forecast_max_column || 9;
-  }
-
-  get _hide_precipitation() {
-    return this._config.hide_precipitation === true;
-  }
-
-  render() {
-    if (!this.hass) {
-      return html``;
+  protected shouldUpdate(): boolean {
+    if (!this._initialized) {
+      this._initialize();
     }
 
-    const entities = Object.keys(this.hass.states).filter(
-      eid => eid.substr(0, eid.indexOf(".")) === "weather"
-    );
+    return true;
+  }
 
-    const languages = [
-      'hacs', 'da', 'de', 'en', 'es', 'fr', 'nl', 'ru', 'sv'
-    ]
+  get _name(): string {
+    return this._config?.name || '';
+  }
+
+  get _entity(): string {
+    return this._config?.entity || "";
+  }
+
+  get _icons(): string {
+    return this._config?.icons || "";
+  }
+
+  get _current(): boolean {
+    return this._config?.current !== false;
+  }
+
+  get _details(): boolean {
+    return this._config?.details !== false;
+  }
+
+  get _forecast(): boolean {
+    return this._config?.forecast !== false;
+  }
+
+  get _graph(): boolean {
+    return this._config?.graph !== false;
+  }
+
+  get _forecastMaxColumn(): number {
+    return this._config?.forecastMaxColumn || 9;
+  }
+
+  get _hidePrecipitation(): boolean {
+    return this._config?.hidePrecipitation === true;
+  }
+
+  protected render(): TemplateResult | void {
+    if (!this.hass || !this._helpers)
+      return html``;
+
+    // The climate more-info has ha-switch and paper-dropdown-menu elements that are lazy loaded unless explicitly done here
+    this._helpers.importMoreInfoControl('weather');
+
+    const entities = Object.keys(this.hass.states).filter(eid => eid.substr(0, eid.indexOf('.')) === 'weather');
 
     return html`
       <div class="card-config">
@@ -99,22 +94,6 @@ export class WeatherCardEditor extends LitElement {
             .configValue="${"icons"}"
             @value-changed="${this._valueChanged}"
           ></paper-input>
-          <paper-dropdown-menu
-            label="Language"
-            @value-changed="${this._valueChanged}"
-            .configValue="${"language"}"
-          >
-            <paper-listbox
-              slot="dropdown-content"
-              .selected="${languages.indexOf(this._language)}"
-            >
-              ${languages.map((lang) => {
-                return html`
-                  <paper-item>${lang}</paper-item>
-                `;
-              })}
-            </paper-listbox>
-          </paper-dropdown-menu>
           ${customElements.get("ha-entity-picker")
             ? html`
                 <ha-entity-picker
@@ -132,10 +111,7 @@ export class WeatherCardEditor extends LitElement {
                   @value-changed="${this._valueChanged}"
                   .configValue="${"entity"}"
                 >
-                  <paper-listbox
-                    slot="dropdown-content"
-                    .selected="${entities.indexOf(this._entity)}"
-                  >
+                  <paper-listbox slot="dropdown-content" .selected="${entities.indexOf(this._entity)}">
                     ${entities.map(entity => {
                       return html`
                         <paper-item>${entity}</paper-item>
@@ -157,8 +133,8 @@ export class WeatherCardEditor extends LitElement {
             >Show details</ha-switch
           >
           <ha-switch
-            .checked=${this._hide_precipitation}
-            .configValue="${"hide_precipitation"}"
+            .checked=${this._hidePrecipitation}
+            .configValue="${"hidePrecipitation"}"
             @change="${this._valueChanged}"
             >Hide precipitation</ha-switch
           >
@@ -177,8 +153,8 @@ export class WeatherCardEditor extends LitElement {
           <paper-input
             label="forecast max columns (optional)"
             type="number"
-            .value="${this._forecast_max_column}"
-            .configValue="${"forecast_max_column"}"
+            .value="${this._forecastMaxColumn}"
+            .configValue="${"forecastMaxColumn"}"
             @value-changed="${this._valueChanged}"
             min="2"
             max="20"
@@ -188,7 +164,18 @@ export class WeatherCardEditor extends LitElement {
     `;
   }
 
-  _valueChanged(ev) {
+  private _initialize(): void {
+    if (this.hass === undefined) return;
+    if (this._config === undefined) return;
+    if (this._helpers === undefined) return;
+    this._initialized = true;
+  }
+
+  private async loadCardHelpers(): Promise<void> {
+    this._helpers = await (window as any).loadCardHelpers();
+  }
+
+  private _valueChanged(ev): void {
     if (!this._config || !this.hass) {
       return;
     }
@@ -197,20 +184,19 @@ export class WeatherCardEditor extends LitElement {
       return;
     }
     if (target.configValue) {
-      if (target.value === "") {
+      if (target.value === '') {
         delete this._config[target.configValue];
       } else {
         this._config = {
           ...this._config,
-          [target.configValue]:
-            target.checked !== undefined ? target.checked : target.value
+          [target.configValue]: target.checked !== undefined ? target.checked : target.value,
         };
       }
     }
-    fireEvent(this, "config-changed", { config: this._config });
+    fireEvent(this, 'config-changed', { config: this._config });
   }
 
-  static get styles() {
+  static get styles(): CSSResult {
     return css`
       ha-switch {
         padding-top: 16px;
@@ -225,5 +211,3 @@ export class WeatherCardEditor extends LitElement {
     `;
   }
 }
-
-customElements.define("weather-card-editor", WeatherCardEditor);

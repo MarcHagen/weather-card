@@ -44,7 +44,7 @@ icons: /community_plugin/weather-card/icons/animated/
 current: true
 details: false
 forecast: true
-language: en
+graph: true
 ```
 
 If you want to show the sunrise and sunset times, make sure the `sun` component is enabled:

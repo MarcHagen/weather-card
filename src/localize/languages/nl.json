@@ -1,0 +1,13 @@
+{
+  "temp": "temperatuur",
+  "tempHi": "Maximum temperatuur",
+  "tempLo": "Minimum temperatuur",
+  "precip": "Neerslag",
+  "uPress": "hPa",
+  "uSpeed": "m/s",
+  "uPrecip": "mm",
+  "cardinalDirections": [
+    "N", "N-NO", "NO", "O-NO", "O", "O-ZO", "ZO", "Z-ZO",
+    "Z", "Z-ZW", "ZW", "W-ZW", "W", "W-NW", "NW", "N-NW", "N"
+  ]
+}

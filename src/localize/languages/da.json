@@ -1,0 +1,13 @@
+{
+  "temp": "Temperatur",
+  "tempHi": "Temperatur maks",
+  "tempLo": "Temperatur nat",
+  "precip": "Nedbør",
+  "uPress": "hPa",
+  "uSpeed": "m/s",
+  "uPrecip": "mm",
+  "cardinalDirections": [
+    "N", "N-NØ", "NØ", "Ø-NØ", "Ø", "Ø-SØ", "SØ", "S-SØ",
+    "S", "S-SV", "SV", "V-SV", "V", "V-NV", "NV", "N-NV", "N"
+  ]
+}

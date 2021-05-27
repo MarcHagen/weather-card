@@ -1,0 +1,13 @@
+{
+  "temp": "Temperatur",
+  "tempHi": "Max temperatur",
+  "tempLo": "Min temperatur",
+  "precip": "Nederbörd",
+  "uPress": "hPa",
+  "uSpeed": "m/s",
+  "uPrecip": "mm",
+  "cardinalDirections": [
+    "N", "N-NO", "NO", "O-NO", "O", "O-SO", "SO", "S-SO",
+    "S", "S-SV", "SV", "V-SV", "V", "V-NV", "NV", "N-NV", "N"
+  ]
+}

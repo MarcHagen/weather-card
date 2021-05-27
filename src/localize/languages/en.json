@@ -1,0 +1,20 @@
+{
+  "common": {
+    "version": "Version",
+    "invalid_configuration": "Invalid configuration",
+    "invalid_entity": "Please define a weather entity",
+    "show_warning": "Show Warning",
+    "show_error": "Show Error"
+  },
+  "temp": "Temperature",
+  "tempHi": "Temperature max",
+  "tempLo": "Temperature min",
+  "precip": "Precipitations",
+  "uPress": "hPa",
+  "uSpeed": "m/s",
+  "uPrecip": "mm",
+  "cardinalDirections": [
+    "N", "N-NE", "NE", "E-NE", "E", "E-SE", "SE", "S-SE",
+    "S", "S-SW", "SW", "W-SW", "W", "W-NW", "NW", "N-NW", "N"
+  ]
+}

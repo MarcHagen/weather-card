@@ -3,74 +3,83 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
-1.6.6 - FUTURE
+## 1.7.0 - FUTURE
+
+### ✨ NEW
+- Rewritten to TypeScript
+
+### 📝 DOCUMENTATION
+- Rewritten changelog, only formatting
 
 ---
 
-1.6.5 - 2020-09-06
+## 1.6.3 - 2020-04-05
 
-### Bug Fixes
-
-* [#2](https://github.com/MarcHagen/weather-card/issues/2) - Fixed wind direction, and HA icon not displaying 
-
----
-
-1.6.4 - 2020-04-30
-
-### Bug Fixes
-
-* Fix temp spacing with HA 109+
+### 🔨 FIXED
+- Fixed icons under graph looking weird ([#1](https://github.com/MarcHagen/weather-card/issues/1))
 
 ---
 
-1.6.3 - 2020-04-05
+## 1.6.2 - 2020-02-17
 
-### Bug Fixes
-
-* [#1](https://github.com/MarcHagen/weather-card/issues/1) - Fixed icons under graph looking weird
-
----
-
-1.6.2 - 2020-02-17
+### ✨ NEW
 - Added option for locale
 - Added wind force for metric (Bft)
-- Fixed wierd spacing for weather icons
 - Added 1.0.2 version of animated icons
 - General cleanup
 
+### 🔨 FIXED
+- Fixed wierd spacing for weather icons
+
 ---
 
-1.6.1 - 2020-02-17
+## 1.6.1 - 2020-02-17
+
+### 🔨 FIXED
 - Hotfix error on string compare
 
 ---
 
-1.6.0 - 2020-02-17
+## 1.6.0 - 2020-02-17
+
+### ✨ NEW
 - Adding WindForce for metric
 
 ---
 
-1.5.0
+## 1.5.0
+
+### ✨ NEW
 - Added graph possibility
-- added number of forecast values
+- Added number of forecast values
 
 ---
 
-1.2.0
+## 1.2.0
+
+### ✨ NEW
 - Added UI editor
 - Hide forecast when not available
 
 ---
 
-1.1.0
+## 1.1.0
+
+### ✨ NEW
 - Added sun rise and set times
 - Added option for `name`
+
+### 🔨 FIXED
 - Some styling tweaks
 
 ---
 
 1.0.1
+
+### ✨ NEW
 - Added state `clear-night` @AVirtualL
-- Fixes for RTL @AVirtualL
-- Used local Lit @iantrich
 - Use hosted icons, option to use local icons with `icons:`
+- Used local Lit @iantrich
+
+### 🔨 FIXED
+- Fixes for RTL @AVirtualL
