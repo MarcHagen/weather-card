@@ -284,7 +284,10 @@ export class WeatherCard extends LitElement {
                                     ${this.getDateString(forecast.datetime)}
                                 </div>
                                 <i class="icon"
-                                   style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase(), this.hass.states['sun.sun'].state)}') no-repeat; background-size: contain"></i>
+                                   style="background: none, url('${this.getWeatherIcon(
+                                           forecast.condition.toLowerCase(),
+                                           this.hass.states['sun.sun'].state
+                                   )}') no-repeat; background-size: contain"></i>
                                 <div class="highTemp">
                                     ${forecast.temperature}${this.getUnit('temperature')}
                                 </div>
@@ -322,7 +325,10 @@ export class WeatherCard extends LitElement {
             </div>
             <div class="conditions">
                 ${this.forecast.map(forecast => html`<i class="icon"
-                                                        style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase(), this.hass.states['sun.sun'].state)}') no-repeat; background-size: contain"></i>`
+                                                        style="background: none, url('${this.getWeatherIcon(
+                                                                forecast.condition.toLowerCase(),
+                                                                this.hass.states['sun.sun'].state
+                                                        )}') no-repeat; background-size: contain"></i>`
                 )}
             </div>
         `;
@@ -500,7 +506,8 @@ export class WeatherCard extends LitElement {
                         label: (tooltipItems, data): string => {
                             const label = data.datasets[tooltipItems.datasetIndex].label || '';
                             if (data.datasets[2].label === label) {
-                                return label + ': ' + (tooltipItems.yLabel ? (tooltipItems.yLabel + ' ' + this.getUnit('precipitation')) : ('0 ' + this.getUnit('precipitation')));
+                                return label + ': ' + (tooltipItems.yLabel ? (tooltipItems.yLabel + ' ' + this.getUnit(
+                                    'precipitation')) : ('0 ' + this.getUnit('precipitation')));
                             }
                             return label + ': ' + tooltipItems.yLabel + ' ' + this.getUnit('temperature');
                         },
