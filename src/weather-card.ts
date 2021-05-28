@@ -3,18 +3,19 @@ import {
     CSSResult,
     customElement,
     html,
-    state,
     LitElement,
     property,
     PropertyValues,
+    state,
     TemplateResult,
 } from 'lit-element';
 import {
-    ActionHandlerEvent,
-    handleAction,
+    fireEvent,
     HomeAssistant,
     LovelaceCardEditor,
 } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
+import { HassEntity } from 'home-assistant-js-websocket/dist/types';
+
 import './editor';
 import './style';
 
@@ -23,41 +24,22 @@ import { cardinalDirectionsIcon, DAY_IN_MILLISECONDS, UPDATE_PROPS, weatherIcons
 import type { WeatherCardConfig } from './types';
 import { CardMode, WeatherObjectForecast } from './types';
 import { style } from './style';
-import { HassEntity } from 'home-assistant-js-websocket/dist/types';
 
 import './initialize';
-
-// Check if config or Entity changed
-function hasConfigOrEntityChanged(element: any, changedProps: PropertyValues): boolean {
-    if (changedProps.has('config')) {
-        return true;
-    }
-
-    if (element.config?.entity) {
-        const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
-        if (oldHass) {
-            return (
-                oldHass.states[element.config.entity] !== element.hass.states[element.config.entity] ||
-                oldHass.states['sun.sun'] !== element.hass.states['sun.sun']
-            );
-        }
-    }
-
-    return true;
-}
 
 @customElement('weather-card')
 export class WeatherCard extends LitElement {
     // https://lit-element.polymer-project.org/guide/properties
     @property({ attribute: false }) public hass!: HomeAssistant
-    @state() private config!: WeatherCardConfig
+    @property({ attribute: false }) public chartData?: object;
 
-    @state() private forecast?: WeatherObjectForecast[]
+    @state() private config!: WeatherCardConfig
     @state() private weatherObj: HassEntity | null | undefined;
     @state() private numberElements: number
-    @state() private mode: CardMode
-    @state() private chartData?: object;
-    @state() private readonly currentLanguage: string;
+
+    private forecast?: WeatherObjectForecast[]
+    private mode: CardMode
+    private readonly currentLanguage: string;
 
     constructor() {
         super();
@@ -68,12 +50,6 @@ export class WeatherCard extends LitElement {
 
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
         return document.createElement('weather-card-editor');
-    }
-
-    public static getStubConfig(): object {
-        return {
-            name: ''
-        };
     }
 
     // https://lit-element.polymer-project.org/guide/properties#accessors-custom
@@ -87,7 +63,7 @@ export class WeatherCard extends LitElement {
         }
 
         this.config = {
-            name: 'Weather Card',
+            name: '',
             ...config,
         };
 
@@ -130,25 +106,23 @@ export class WeatherCard extends LitElement {
         if (!this.weatherObj)
             return true;
 
-        if (UPDATE_PROPS.some(prop => changedProps.has(prop))) {
-            return true;
-        }
-
-        return false;
+        return UPDATE_PROPS.some(prop => changedProps.has(prop));
     }
 
     // https://lit-element.polymer-project.org/guide/lifecycle#updated
     protected updated(): void {
         this.setWeatherObj();
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        /* eslint-disable @typescript-eslint/ban-ts-ignore */
         // @ts-ignore
         const chart = this.shadowRoot.querySelector('#Chart');
         if (chart) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
             // @ts-ignore
             chart.data = this.chartData;
+            // @ts-ignore
+            chart.hass = this.hass
         }
+        /* eslint-enable @typescript-eslint/ban-ts-ignore */
     }
 
     // https://lit-element.polymer-project.org/guide/templates
@@ -178,12 +152,16 @@ export class WeatherCard extends LitElement {
         }
 
         return html`
-            <ha-card @action=${this._handleAction}>
+            <ha-card @click="${this._handleClick}">
                 ${this.config.current !== false ? this.renderCurrent() : ''}
                 ${this.config.details !== false ? this.renderDetails() : ''}
                 ${this.config.forecast !== false ? this.renderForecast() : ''}
             </ha-card>
         `;
+    }
+
+    private _handleClick(): void {
+        fireEvent(this, 'hass-more-info', { entityId: this.config.entity });
     }
 
     private renderCurrent(): TemplateResult {
@@ -238,10 +216,10 @@ export class WeatherCard extends LitElement {
                     ${this.weatherObj.attributes.humidity}<span class="unit"> % </span>
                 </li>
                 <li>
-                    ${this.getWindDir(this.weatherObj.attributes.wind_bearing)}
+                    ${WeatherCard.getWindDir(this.weatherObj.attributes.wind_bearing)}
                     <ha-icon
                             style="margin-left: 0;"
-                            icon="hass:${this.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
+                            icon="hass:${WeatherCard.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
                     ></ha-icon>
                     ${this.weatherObj.attributes.wind_speed}
                     <span class="unit">${this.getUnit('length')}/h</span>${this.getWindForce()}
@@ -305,10 +283,8 @@ export class WeatherCard extends LitElement {
                                 <div class="dayname">
                                     ${this.getDateString(forecast.datetime)}
                                 </div>
-                                <i
-                                        class="icon"
-                                        style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase(), this.hass.states['sun.sun'].state)}') no-repeat; background-size: contain"
-                                ></i>
+                                <i class="icon"
+                                   style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase(), this.hass.states['sun.sun'].state)}') no-repeat; background-size: contain"></i>
                                 <div class="highTemp">
                                     ${forecast.temperature}${this.getUnit('temperature')}
                                 </div>
@@ -340,17 +316,14 @@ export class WeatherCard extends LitElement {
             return html``;
 
         this.drawChart();
-
         return html`
             <div class="clear ${this.numberElements > 1 ? 'spacer' : ''}">
                 <ha-chart-base id="Chart"></ha-chart-base>
             </div>
             <div class="conditions">
-                ${this.forecast
-                        .map(forecast => html`
-                            <i class="icon"
-                               style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase(), this.hass.states['sun.sun'].state)}') no-repeat; background-size: contain"></i>
-                        `)}
+                ${this.forecast.map(forecast => html`<i class="icon"
+                                                        style="background: none, url('${this.getWeatherIcon(forecast.condition.toLowerCase(), this.hass.states['sun.sun'].state)}') no-repeat; background-size: contain"></i>`
+                )}
             </div>
         `;
     }
@@ -374,7 +347,8 @@ export class WeatherCard extends LitElement {
         const style = getComputedStyle(document.body);
         const textColor = style.getPropertyValue('--primary-text-color');
         const dividerColor = style.getPropertyValue('--divider-color');
-        const chartOptions = {
+
+        this.chartData = {
             type: 'bar',
             data: {
                 labels: dateTime,
@@ -414,6 +388,7 @@ export class WeatherCard extends LitElement {
                     duration: 300,
                     easing: 'linear',
                     onComplete: function (): void {
+                        console.log('running animation completed')
                         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
                         // @ts-ignore
                         const chartInstance = this.chart;
@@ -438,17 +413,18 @@ export class WeatherCard extends LitElement {
                     display: false,
                 },
                 scales: {
-                    xAxes: [{
-                        type: 'time',
-                        maxBarThickness: 15,
-                        display: false,
-                        ticks: {
+                    xAxes: [
+                        {
+                            type: 'time',
+                            maxBarThickness: 15,
                             display: false,
+                            ticks: {
+                                display: false,
+                            },
+                            gridLines: {
+                                display: false,
+                            },
                         },
-                        gridLines: {
-                            display: false,
-                        },
-                    },
                         {
                             id: 'DateAxis',
                             position: 'top',
@@ -463,26 +439,30 @@ export class WeatherCard extends LitElement {
                                 autoSkip: true,
                                 fontColor: textColor,
                                 maxRotation: 0,
-                                callback: (value): string => this.getDateString(value),
+                                callback: (value): string => {
+                                    return this.getDateString(value)
+                                },
                             }
-                        }],
-                    yAxes: [{
-                        id: 'TempAxis',
-                        position: 'left',
-                        gridLines: {
-                            display: true,
-                            drawBorder: false,
-                            color: dividerColor,
-                            borderDash: [1, 3],
+                        }
+                    ],
+                    yAxes: [
+                        {
+                            id: 'TempAxis',
+                            position: 'left',
+                            gridLines: {
+                                display: true,
+                                drawBorder: false,
+                                color: dividerColor,
+                                borderDash: [1, 3],
+                            },
+                            ticks: {
+                                display: true,
+                                fontColor: textColor,
+                            },
+                            afterFit: (scaleInstance): void => {
+                                scaleInstance.width = 28;
+                            },
                         },
-                        ticks: {
-                            display: true,
-                            fontColor: textColor,
-                        },
-                        afterFit: function (scaleInstance): void {
-                            scaleInstance.width = 28;
-                        },
-                    },
                         {
                             id: 'PrecipAxis',
                             position: 'right',
@@ -497,10 +477,11 @@ export class WeatherCard extends LitElement {
                                 suggestedMax: 20,
                                 fontColor: textColor,
                             },
-                            afterFit: function (scaleInstance): void {
+                            afterFit: (scaleInstance): void => {
                                 scaleInstance.width = 15;
                             },
-                        }],
+                        }
+                    ],
                 },
                 tooltips: {
                     mode: 'index',
@@ -527,7 +508,6 @@ export class WeatherCard extends LitElement {
                 },
             },
         };
-        this.chartData = chartOptions;
     }
 
     private getWeatherIcon(condition, sun): string {
@@ -542,11 +522,11 @@ export class WeatherCard extends LitElement {
         }.svg`;
     }
 
-    private getWindDirIcon(degree): string {
+    private static getWindDirIcon(degree): string {
         return cardinalDirectionsIcon[((degree + 22.5) / 45.0)];
     }
 
-    private getWindDir(degree): string {
+    private static getWindDir(degree): string {
         return localize('cardinalDirections')[((degree + 11.25) / 22.5)];
     }
 
@@ -581,12 +561,6 @@ export class WeatherCard extends LitElement {
         }
 
         return new Date(datetime).toLocaleDateString(this.currentLanguage, { weekday: 'short' });
-    }
-
-    private _handleAction(ev: ActionHandlerEvent): void {
-        if (this.hass && this.config && ev.detail.action) {
-            handleAction(this, this.hass, this.config, ev.detail.action);
-        }
     }
 
     private getCardSize(): number {

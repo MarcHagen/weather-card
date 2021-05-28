@@ -7,8 +7,7 @@ declare global {
 }
 
 export interface WeatherCardConfig extends LovelaceCardConfig {
-    name?: string;
-    entity?: string;
+    entity: string;
     forecastMaxColumn?: number;
     icons?: string;
     details?: boolean;
