@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 ### ✨ NEW
 - Adding precipitation probability (if exists in weather object)
 
+### 🔨 FIXED
+- Language not getting updated. This was not properly initialized.
+
 ### 🧹 Cleanup
 - Don't require sun
 

@@ -10,6 +10,8 @@ import * as sv from './languages/sv.json';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const languages: any = {
     en: en,
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    en_GB: en,
     da: da,
     de: de,
     es: es,

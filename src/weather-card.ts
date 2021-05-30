@@ -31,7 +31,7 @@ import './initialize';
 export class WeatherCard extends LitElement {
     // https://lit-element.polymer-project.org/guide/properties
     @property({ attribute: false }) public hass!: HomeAssistant
-    @property({ attribute: false }) public chartData?: object;
+    @property({ attribute: false }) public chartData?: object
 
     @state() private config!: WeatherCardConfig
     @state() private weatherObj: HassEntity | null | undefined;
@@ -39,13 +39,13 @@ export class WeatherCard extends LitElement {
 
     private forecast?: WeatherObjectForecast[]
     private mode: CardMode
-    private readonly currentLanguage: string;
+    private readonly currentLanguage: string
 
     constructor() {
-        super();
+        super()
         this.numberElements = 0
-        this.mode = CardMode.daily;
-        this.currentLanguage = this.hass?.language || 'en';
+        this.mode = CardMode.daily
+        this.currentLanguage = (localStorage.getItem('selectedLanguage') || 'en').replace(/['"]+/g, '');
     }
 
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
@@ -381,7 +381,6 @@ export class WeatherCard extends LitElement {
                     duration: 300,
                     easing: 'linear',
                     onComplete: function (): void {
-                        console.log('running animation completed')
                         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
                         // @ts-ignore
                         const chartInstance = this.chart;
