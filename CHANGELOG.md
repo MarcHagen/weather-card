@@ -3,13 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
-## 1.7.0 - FUTURE
+## 1.7.0 - 2021-05-30
 
 ### ✨ NEW
 - Rewritten to TypeScript
 
 ### 📝 DOCUMENTATION
 - Rewritten changelog, only formatting
+
+### 🧹 Removed
+- Language as a option. Now uses Home Assistant selected language.
 
 ---
 
