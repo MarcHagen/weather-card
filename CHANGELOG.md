@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## 1.7.1 - ?
 
+### ✨ NEW
+- Adding precipitation probability (if exists in weather object)
+
 ### 🧹 Cleanup
 - Don't require sun
 
