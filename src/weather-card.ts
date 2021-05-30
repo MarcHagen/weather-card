@@ -171,24 +171,12 @@ export class WeatherCard extends LitElement {
 
         return html`
             <div class="current ${this.numberElements > 1 ? 'spacer' : ''}">
-        <span
-                class="icon bigger"
-                style="background: none, url('${this.getWeatherIcon(
+                <span class="icon bigger" style="background: none, url('${this.getWeatherIcon(
                         this.weatherObj.state.toLowerCase(),
                         this.hass.states['sun.sun']
-                )}') no-repeat; background-size: contain;"
-        >${this.weatherObj.state}
-        </span>
-                ${this.config.name
-                        ? html`
-                            <span class="title"> ${this.config.name} </span>
-                        `
-                        : ""}
-                <span class="temp"
-                >${this.getUnit('temperature') == '°F'
-                        ? Math.round(this.weatherObj.attributes.temperature)
-                        : this.weatherObj.attributes.temperature}</span
-                >
+                )}') no-repeat; background-size: contain;">${this.weatherObj.state}</span>
+                ${this.config.name ? html`<span class="title"> ${this.config.name} </span>` : ''}
+                <span class="temp">${this.getUnit('temperature') == '°F' ? Math.round(this.weatherObj.attributes.temperature) : this.weatherObj.attributes.temperature}</span>
                 <span class="tempc"> ${this.getUnit('temperature')}</span>
             </div>
         `;
@@ -283,14 +271,11 @@ export class WeatherCard extends LitElement {
                                 <div class="dayname">
                                     ${this.getDateString(forecast.datetime)}
                                 </div>
-                                <i class="icon"
-                                   style="background: none, url('${this.getWeatherIcon(
-                                           forecast.condition.toLowerCase(),
-                                           this.hass.states['sun.sun'].state
-                                   )}') no-repeat; background-size: contain"></i>
-                                <div class="highTemp">
-                                    ${forecast.temperature}${this.getUnit('temperature')}
-                                </div>
+                                <i class="icon" style="background: none, url('${this.getWeatherIcon(
+                                        forecast.condition.toLowerCase(),
+                                        this.hass.states['sun.sun']
+                                )}') no-repeat; background-size: contain"></i>
+                                <div class="highTemp">${forecast.temperature}${this.getUnit('temperature')}</div>
                                 ${forecast.templow !== undefined
                                         ? html`
                                             <div class="lowTemp">
@@ -324,11 +309,11 @@ export class WeatherCard extends LitElement {
                 <ha-chart-base id="Chart"></ha-chart-base>
             </div>
             <div class="conditions">
-                ${this.forecast.map(forecast => html`<i class="icon"
-                                                        style="background: none, url('${this.getWeatherIcon(
-                                                                forecast.condition.toLowerCase(),
-                                                                this.hass.states['sun.sun'].state
-                                                        )}') no-repeat; background-size: contain"></i>`
+                ${this.forecast.map(forecast => html`
+                    <i class="icon" style="background: none, url('${this.getWeatherIcon(
+                            forecast.condition.toLowerCase(),
+                            this.hass.states['sun.sun']
+                    )}') no-repeat; background-size: contain"></i>`
                 )}
             </div>
         `;
@@ -517,16 +502,10 @@ export class WeatherCard extends LitElement {
         };
     }
 
-    private getWeatherIcon(condition, sun): string {
-        return `${
-            this.config.icons
-                ? this.config.icons
-                : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/'
-        }${
-            sun && sun.state === 'below_horizon'
-                ? weatherIconsNight[condition]
-                : weatherIconsDay[condition]
-        }.svg`;
+    private getWeatherIcon(condition: string, sun: HassEntity | null | undefined): string {
+        const iconPath = this.config.icons ? this.config.icons : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/'
+        const sunIcon = sun && sun.state === 'below_horizon' ? weatherIconsNight[condition] : weatherIconsDay[condition]
+        return `${iconPath}${sunIcon}.svg`;
     }
 
     private static getWindDirIcon(degree): string {

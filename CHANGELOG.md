@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 - Rewritten changelog, only formatting
 
 ### 🧹 Removed
-- Language as a option. Now uses Home Assistant selected language.
+- Language as an option. Now uses Home Assistant selected language.
 
 ---
 
