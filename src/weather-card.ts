@@ -205,10 +205,7 @@ export class WeatherCard extends LitElement {
                 </li>
                 <li>
                     ${WeatherCard.getWindDir(this.weatherObj.attributes.wind_bearing)}
-                    <ha-icon
-                            style="margin-left: 0;"
-                            icon="hass:${WeatherCard.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
-                    ></ha-icon>
+                    <ha-icon style="margin-left: 0;" icon="hass:${WeatherCard.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"></ha-icon>
                     ${this.weatherObj.attributes.wind_speed}
                     <span class="unit">${this.getUnit('length')}/h</span>${this.getWindForce()}
                     <ha-icon icon="mdi:weather-windy"></ha-icon>
@@ -216,15 +213,11 @@ export class WeatherCard extends LitElement {
                 <li>
                     <ha-icon icon="mdi:gauge"></ha-icon>
                     ${this.weatherObj.attributes.pressure}
-                    <span class="unit">
-            ${this.getUnit('air_pressure')}
-          </span>
+                    <span class="unit">${this.getUnit('air_pressure')}</span>
                 </li>
                 <li>
                     ${this.weatherObj.attributes.visibility}
-                    <span class="unit">
-            ${this.getUnit('length')}
-          </span>
+                    <span class="unit">${this.getUnit('length')}</span>
                     <ha-icon icon="mdi:weather-fog"></ha-icon>
                 </li>
                 ${nextRising
