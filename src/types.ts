@@ -22,12 +22,15 @@ export enum CardMode {
     daily
 }
 
+// https://developers.home-assistant.io/docs/core/entity/weather/#forecast
 export interface WeatherObjectForecast {
-    templow: number;
+    datetime: string;
     temperature: number;
     condition: string;
-    datetime: string;
-    wind_bearing: number;
-    wind_speed: number;
+    templow: number;
     precipitation: number;
+    precipitation_probability: number;
+    pressure: number;
+    wind_bearing: number | string;
+    wind_speed: number;
 }
