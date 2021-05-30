@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ## 1.7.1 - ?
 
+### 🧹 Cleanup
+- Don't require sun
+
 ---
 
 ## 1.7.0 - 2021-05-30
