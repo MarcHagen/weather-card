@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
-## 1.7.1 - ?
+## 1.7.1 - 2021-05-30
 
 ### ✨ NEW
 - Adding precipitation probability (if exists in weather object)
@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com), and this 
 
 ### 🧹 Cleanup
 - Don't require sun
+- Small code format cleanup
 
 ---
 
