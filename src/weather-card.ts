@@ -13,6 +13,7 @@ import { CardMode, WeatherObjectForecast } from './types';
 import { style } from './style';
 
 import './initialize';
+import { getLocale } from './helpers';
 
 @customElement('weather-card')
 export class WeatherCard extends LitElement {
@@ -42,11 +43,11 @@ export class WeatherCard extends LitElement {
   // https://lit-element.polymer-project.org/guide/properties#accessors-custom
   public setConfig(config: WeatherCardConfig): void {
     if (!config) {
-      throw new Error(localize('common.invalid_configuration'));
+      throw new Error(localize('common.invalid_configuration', getLocale(this.hass)));
     }
 
     if (!config.entity) {
-      throw new Error(localize('common.invalid_entity'));
+      throw new Error(localize('common.invalid_entity', getLocale(this.hass)));
     }
 
     this.config = {
@@ -188,7 +189,7 @@ export class WeatherCard extends LitElement {
           ${this.weatherObj.attributes.humidity}<span class="unit"> % </span>
         </li>
         <li>
-          ${WeatherCard.getWindDir(this.weatherObj.attributes.wind_bearing)}
+          ${WeatherCard.getWindDir(this.hass, this.weatherObj.attributes.wind_bearing)}
           <ha-icon
             style="margin-left: 0;"
             icon="hass:${WeatherCard.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
@@ -330,7 +331,10 @@ export class WeatherCard extends LitElement {
         labels: dateTime,
         datasets: [
           {
-            label: this.mode === CardMode.hourly ? localize('temp') : localize('tempHi'),
+            label:
+              this.mode === CardMode.hourly
+                ? localize('temp', getLocale(this.hass))
+                : localize('tempHi', getLocale(this.hass)),
             type: 'line',
             data: tempHigh,
             yAxisID: 'TempAxis',
@@ -341,7 +345,7 @@ export class WeatherCard extends LitElement {
             fill: false,
           },
           {
-            label: localize('tempLo'),
+            label: localize('tempLo', getLocale(this.hass)),
             type: 'line',
             data: tempLow,
             yAxisID: 'TempAxis',
@@ -352,7 +356,7 @@ export class WeatherCard extends LitElement {
             fill: false,
           },
           {
-            label: localize('precip'),
+            label: localize('precip', getLocale(this.hass)),
             type: 'bar',
             data: precip,
             yAxisID: 'PrecipAxis',
@@ -497,12 +501,12 @@ export class WeatherCard extends LitElement {
     return `${iconPath}${sunIcon}.svg`;
   }
 
-  private static getWindDirIcon(degree): string {
+  private static getWindDirIcon(degree: number): string {
     return cardinalDirectionsIcon[(degree + 22.5) / 45.0];
   }
 
-  private static getWindDir(degree): string {
-    return localize('cardinalDirections')[(degree + 11.25) / 22.5];
+  private static getWindDir(hass: HomeAssistant, degree: number): string {
+    return localize('cardinalDirections', getLocale(hass))[(degree + 11.25) / 22.5];
   }
 
   private getWindForce(): TemplateResult {
@@ -518,13 +522,13 @@ export class WeatherCard extends LitElement {
     const lengthUnit = this.hass.config.unit_system.length;
     switch (measure) {
       case 'air_pressure':
-        return lengthUnit === 'km' ? localize('uPress') : 'mbar';
+        return lengthUnit === 'km' ? localize('uPress', getLocale(this.hass)) : 'mbar';
       case 'length':
         return lengthUnit;
       case 'precipitation':
-        return lengthUnit === 'km' ? localize('uPrecip') : 'in';
+        return lengthUnit === 'km' ? localize('uPrecip', getLocale(this.hass)) : 'in';
       case 'intensity':
-        return lengthUnit === 'km' ? localize('uPrecip') + '/h' : 'in/h';
+        return lengthUnit === 'km' ? localize('uPrecip', getLocale(this.hass)) + '/h' : 'in/h';
       case 'precipitation_probability':
         return '%';
       default:
