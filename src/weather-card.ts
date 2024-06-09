@@ -516,6 +516,8 @@ export class WeatherCard extends LitElement {
     return localize('cardinalDirections', getLocale(hass))[(degree + 11.25) / 22.5];
   }
 
+  // beaufortWind - returns the wind speed on the beaufort scale
+  // reference https://en.wikipedia.org/wiki/Beaufort_scale
   private getWindForce(): TemplateResult {
     if (this.getUnit('length') !== 'km' || !this.weatherObj) {
       return html``;
@@ -543,7 +545,7 @@ export class WeatherCard extends LitElement {
     }
   }
 
-  private getDateString(datetime): string {
+  private getDateString(datetime: string): string {
     if (this.mode === CardMode.hourly) {
       return new Date(datetime).toLocaleTimeString(this.currentLanguage, { hour: 'numeric' });
     }
