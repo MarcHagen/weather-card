@@ -86,7 +86,7 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
                   .value="${this._entity}"
                   .configValue=${'entity'}
                   domain-filter="weather"
-                  @change="${this._valueChanged}"
+                  @change="${this._valueChangedPicker}"
                   allow-custom-entity
                 ></ha-entity-picker>
               `
@@ -155,7 +155,7 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
             type="number"
             .value="${this._forecastMaxColumn}"
             .configValue="${'forecastMaxColumn'}"
-            @value-changed="${this._valueChanged}"
+            @value-changed="${this._valueChangedNumber}"
             min="2"
             max="20"
           ></paper-input>
@@ -189,6 +189,50 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
       }
     }
     fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _valueChangedNumber(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    const target = ev.target;
+    if (this[`_${target.configValue}`] === target.value) {
+      return;
+    }
+    if (target.configValue) {
+      if (target.value === '' || target.value === null) {
+        delete this._config[target.configValue];
+      } else {
+        this._config = {
+          ...this._config,
+          [target.configValue]: Number(target.value),
+        };
+      }
+    }
+    fireEvent(this, 'config-changed', { config: this.sortObjectByKeys(this._config) });
+  }
+
+  private _valueChangedPicker(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    const target = ev.target;
+    const value = ev.detail.value;
+    if (this[`_${target.configValue}`] === value) {
+      return;
+    }
+    if (target.configValue) {
+      if (value) {
+        this._config = {
+          ...this._config,
+          [target.configValue]: value,
+        };
+      } else {
+        this._config = { ...this._config };
+        delete this._config[target.configValue];
+      }
+    }
+    fireEvent(this, 'config-changed', { config: this.sortObjectByKeys(this._config) });
   }
 
   static readonly styles: CSSResult = css`
