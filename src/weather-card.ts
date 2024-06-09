@@ -321,8 +321,12 @@ export class WeatherCard extends LitElement {
     for (const d of this.forecast) {
       dateTime.push(new Date(d.datetime));
       tempHigh.push(d.temperature);
-      tempLow.push(d.templow);
-      precip.push(d.precipitation);
+      if (d.templow) {
+        tempLow.push(d.templow);
+      }
+      if (d.precipitation) {
+        precip.push(d.precipitation);
+      }
     }
     const style = getComputedStyle(document.body);
     const textColor = style.getPropertyValue('--primary-text-color');
