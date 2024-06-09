@@ -36,9 +36,8 @@ Add the following to resources in your lovelace config:
 
 ## Manual:
 
-1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card.js) to `/config/www/weather-card/icons/`. (or an other folder in `/config/www/`)
-2. Save, the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/weather-card/icons/` (or an other folder in `/config/www/`)
-3. If you use Lovelace in storage mode, and want to use the editor, download the [weather-card-editor.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card-editor.js) to `/config/www/weather-card/`. (or the folder you used above)
+1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card.js) to `/config/www/weather-card/`. (or an other folder in `/config/www/`)
+2. Save the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/weather-card/icons/` (or an other folder in `/config/www/`)
 
 Add the following to resources in your lovelace config:
 
