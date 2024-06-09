@@ -1,13 +1,5 @@
-import {
-  CSSResult,
-  customElement,
-  html,
-  LitElement,
-  property,
-  PropertyValues,
-  state,
-  TemplateResult,
-} from 'lit-element';
+import { CSSResult, html, LitElement, PropertyValues, TemplateResult } from 'lit-element';
+import { customElement, property, state } from 'lit/decorators';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
 import { HassEntity } from 'home-assistant-js-websocket/dist/types';
 
@@ -103,16 +95,14 @@ export class WeatherCard extends LitElement {
   protected updated(): void {
     this.setWeatherObj();
 
-    /* eslint-disable @typescript-eslint/ban-ts-ignore */
-    // @ts-ignore
+    // @ts-expect-error 2531
     const chart = this.shadowRoot.querySelector('#Chart');
     if (chart) {
-      // @ts-ignore
+      // @ts-expect-error 2339
       chart.data = this.chartData;
-      // @ts-ignore
+      // @ts-expect-error 2339
       chart.hass = this.hass;
     }
-    /* eslint-enable @typescript-eslint/ban-ts-ignore */
   }
 
   // https://lit-element.polymer-project.org/guide/templates
@@ -324,8 +314,7 @@ export class WeatherCard extends LitElement {
     const tempLow: number[] = [];
     const precip: number[] = [];
 
-    for (let i = 0; i < this.forecast.length; i++) {
-      const d = this.forecast[i];
+    for (const d of this.forecast) {
       dateTime.push(new Date(d.datetime));
       tempHigh.push(d.temperature);
       tempLow.push(d.templow);
@@ -375,21 +364,19 @@ export class WeatherCard extends LitElement {
           duration: 300,
           easing: 'linear',
           onComplete: function (): void {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
+            // @ts-expect-error 2339
             const chartInstance = this.chart;
             const ctx = chartInstance.ctx;
             ctx.fillStyle = textColor;
             const fontSize = 10;
             const fontStyle = 'normal';
             const fontFamily = 'Roboto';
-            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-            // @ts-ignore
+            // @ts-expect-error 2304
             ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             const meta = chartInstance.controller.getDatasetMeta(2);
-            meta.data.forEach(function (bar, index) {
+            meta.data.forEach(function (bar: { _model: { x: never; y: number } }, index: string | number) {
               const data = (Math.round(chartInstance.data.datasets[2].data[index] * 10) / 10).toFixed(1);
               ctx.fillText(data, bar._model.x, bar._model.y - 5);
             });

@@ -191,25 +191,23 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
-  static get styles(): CSSResult {
-    return css`
-      .options {
-        display: grid;
-      }
+  static readonly styles: CSSResult = css`
+    .options {
+      display: grid;
+    }
 
-      .option {
-        display: flex;
-        margin: 1rem 0;
-        align-items: center;
-      }
+    .option {
+      display: flex;
+      margin: 1rem 0;
+      align-items: center;
+    }
 
-      .option .label {
-        margin: 0 1rem;
-      }
+    .option .label {
+      margin: 0 1rem;
+    }
 
-      .option .help {
-        color: var(--secondary-text-color);
-      }
-    `;
-  }
+    .option .help {
+      color: var(--secondary-text-color);
+    }
+  `;
 }
