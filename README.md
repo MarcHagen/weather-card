@@ -15,28 +15,28 @@ Download the weather and weather-animated. These versions are included in this p
 
 Thanks for all picking this card up.
 
-## Installation:
+# Installation:
 
 You have 3 options, HACS hosted or self hosted (manual). The first option needs internet and will update itself.
 
-# HACS
+## HACS
 
 The easiest way it's to [HACS](https://hacs.xyz/)
 Add the repos address in settings :
 https://github.com/MarcHagen/weather-card
 
-# Hosted:
+## Hosted:
 
 Add the following to resources in your lovelace config:
 
 ```yaml
-- url: https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/src/weather-card.min.js
+- url: https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/weather-card.min.js
   type: module
 ```
 
-# Manual:
+## Manual:
 
-1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/v1.5.0/dist/weather-card.js) to `/config/www/weather-card/icons/`. (or an other folder in `/config/www/`)
+1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card.js) to `/config/www/weather-card/icons/`. (or an other folder in `/config/www/`)
 2. Save, the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/weather-card/icons/` (or an other folder in `/config/www/`)
 3. If you use Lovelace in storage mode, and want to use the editor, download the [weather-card-editor.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card-editor.js) to `/config/www/weather-card/`. (or the folder you used above)
 
@@ -48,7 +48,7 @@ resources:
     type: module
 ```
 
-## Configuration:
+# Configuration:
 
 And add a card with type `custom:weather-card`:
 
