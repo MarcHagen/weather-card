@@ -3,7 +3,6 @@ import { customElement, property, state } from 'lit/decorators';
 import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
 import { HassEntity } from 'home-assistant-js-websocket/dist/types';
 
-import './editor';
 import './style';
 
 import { localize } from './localize/localize';
@@ -37,6 +36,7 @@ export class WeatherCard extends LitElement {
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
+    await import('./editor');
     return document.createElement('weather-card-editor');
   }
 
