@@ -62,7 +62,7 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
   protected render(): TemplateResult | void {
     if (!this.hass) return html``;
 
-    const entities = Object.keys(this.hass.states).filter((eid) => eid.substr(0, eid.indexOf('.')) === 'weather');
+    const entities = Object.keys(this.hass.states).filter((eid) => eid.substring(0, eid.indexOf('.')) === 'weather');
 
     return html`
       <div class="card-config">
