@@ -2,14 +2,16 @@ import { LitElement, html, TemplateResult, CSSResult, css } from 'lit-element';
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
-import { WeatherCardConfig } from './types';
+import { keys, WeatherCardConfig } from './types';
 
 @customElement('weather-card-editor')
 export class WeatherCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
   @state() private _config?: WeatherCardConfig;
   @state() private _toggle?: boolean;
+
   private _initialized = false;
+  private _config_version = 2;
 
   public setConfig(config: WeatherCardConfig): void {
     this._config = config;
@@ -23,12 +25,61 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
     return true;
   }
 
+  private _configCleanup() {
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    let tmpConfig = { ...this._config };
+
+    // Rename options
+    if (tmpConfig.entity) {
+      tmpConfig['entity_weather'] = tmpConfig.entity;
+      delete tmpConfig['entity'];
+    }
+
+    // Remove unused entries
+    const keysOfProps = keys<WeatherCardConfig>();
+    for (const element in this._config) {
+      if (!keysOfProps.includes(element)) {
+        delete tmpConfig[element];
+      }
+    }
+
+    tmpConfig = {
+      ...tmpConfig,
+      card_config_version: this._config_version,
+    };
+
+    this._config = tmpConfig;
+
+    fireEvent(this, 'config-changed', { config: this.sortObjectByKeys(this._config) });
+  }
+
+  private sortObjectByKeys(object: Record<string, unknown>) {
+    return Object.keys(object)
+      .sort()
+      .reduce((r, k) => ((r[k] = object[k]), r), {});
+  }
+
+  protected async firstUpdated(): Promise<void> {
+    if (this._config && this.hass) {
+      if (this._config.card_config_version !== this._config_version) {
+        this._configCleanup();
+      }
+    }
+  }
+
   get _name(): string {
     return this._config?.name || '';
   }
 
-  get _entity(): string {
-    return this._config?.entity || '';
+  get _weather_entity(): string {
+    return this._config?.entity_weather || '';
+  }
+
+  get _entity_sun(): string {
+    return this._config?.entity_sun || '';
   }
 
   get _icons(): string {
@@ -83,16 +134,20 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
             ? html`
                 <ha-entity-picker
                   .hass="${this.hass}"
-                  .value="${this._entity}"
-                  .configValue=${'entity'}
+                  .value="${this._weather_entity}"
+                  .configValue=${'weather_entity'}
                   domain-filter="weather"
                   @change="${this._valueChangedPicker}"
                   allow-custom-entity
                 ></ha-entity-picker>
               `
             : html`
-                <paper-dropdown-menu label="Entity" @value-changed="${this._valueChanged}" .configValue="${'entity'}">
-                  <paper-listbox slot="dropdown-content" .selected="${entities.indexOf(this._entity)}">
+                <paper-dropdown-menu
+                  label="Entity"
+                  @value-changed="${this._valueChangedPicker}"
+                  .configValue="${'weather_entity'}"
+                >
+                  <paper-listbox slot="dropdown-content" .selected="${entities.indexOf(this._weather_entity)}">
                     ${entities.map((entity) => {
                       return html` <paper-item>${entity}</paper-item> `;
                     })}

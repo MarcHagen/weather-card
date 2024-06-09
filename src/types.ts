@@ -7,8 +7,13 @@ declare global {
   }
 }
 
+// @ts-expect-error 2391
+export function keys<T extends object>(): (keyof T)[];
+
 export interface WeatherCardConfig extends LovelaceCardConfig {
-  entity: string;
+  entity_weather: string;
+  entity_sun: string;
+  card_config_version?: number;
   forecastMaxColumn?: number;
   icons?: string;
   details?: boolean;

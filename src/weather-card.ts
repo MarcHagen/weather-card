@@ -21,7 +21,7 @@ export class WeatherCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @property({ attribute: false }) public chartData?: object;
 
-  @state() private config!: WeatherCardConfig;
+  @state() private _config!: WeatherCardConfig;
   @state() private weatherObj: HassEntity | null | undefined;
   @state() private numberElements: number;
 
@@ -46,11 +46,11 @@ export class WeatherCard extends LitElement {
       throw new Error(localize('common.invalid_configuration', getLocale(this.hass)));
     }
 
-    if (!config.entity) {
+    if (!config.entity_weather) {
       throw new Error(localize('common.invalid_entity', getLocale(this.hass)));
     }
 
-    this.config = {
+    this._config = {
       name: '',
       ...config,
     };
@@ -59,14 +59,17 @@ export class WeatherCard extends LitElement {
   }
 
   private setWeatherObj(): void {
-    if (!this.hass || !this.config.entity) return;
+    if (!this.hass || !this._config.entity_weather) return;
 
-    this.weatherObj = this.config.entity in this.hass.states ? this.hass.states[this.config.entity] : null;
+    this.weatherObj =
+      this._config.entity_weather in this.hass.states ? this.hass.states[this._config.entity_weather] : null;
     if (!this.weatherObj) return;
 
-    if (!this.config.forecastMaxColumn || this.config.forecastMaxColumn < 2)
+    if (!this._config.forecastMaxColumn || this._config.forecastMaxColumn < 2) {
       this.forecast = this.weatherObj.attributes.forecast.slice(0, 9);
-    else this.forecast = this.weatherObj.attributes.forecast.slice(0, this.config.forecastMaxColumn);
+    } else {
+      this.forecast = this.weatherObj.attributes.forecast.slice(0, this._config.forecastMaxColumn);
+    }
 
     if (!Array.isArray(this.forecast)) return;
 
@@ -108,7 +111,7 @@ export class WeatherCard extends LitElement {
 
   // https://lit-element.polymer-project.org/guide/templates
   protected render(): TemplateResult | void {
-    if (!this.config || !this.hass) {
+    if (!this._config || !this.hass) {
       return html``;
     }
 
@@ -125,22 +128,22 @@ export class WeatherCard extends LitElement {
           }
         </style>
         <ha-card>
-          <div class="not-found">Entity not available: ${this.config.entity}</div>
+          <div class="not-found">Entity not available: ${this._config.entity_weather}</div>
         </ha-card>
       `;
     }
 
     return html`
       <ha-card @click="${this._handleClick}">
-        ${this.config.current !== false ? this.renderCurrent() : ''}
-        ${this.config.details !== false ? this.renderDetails() : ''}
-        ${this.config.forecast !== false ? this.renderForecast() : ''}
+        ${this._config.current !== false ? this.renderCurrent() : ''}
+        ${this._config.details !== false ? this.renderDetails() : ''}
+        ${this._config.forecast !== false ? this.renderForecast() : ''}
       </ha-card>
     `;
   }
 
   private _handleClick(): void {
-    fireEvent(this, 'hass-more-info', { entityId: this.config.entity });
+    fireEvent(this, 'hass-more-info', { entityId: this._config.entity_weather });
   }
 
   private renderCurrent(): TemplateResult {
@@ -157,7 +160,7 @@ export class WeatherCard extends LitElement {
           )}') no-repeat; background-size: contain;"
           >${this.weatherObj.state}</span
         >
-        ${this.config.name ? html`<span class="title"> ${this.config.name} </span>` : ''}
+        ${this._config.name ? html`<span class="title"> ${this._config.name} </span>` : ''}
         <span class="temp"
           >${this.getUnit('temperature') == '°F'
             ? Math.round(this.weatherObj.attributes.temperature)
@@ -234,7 +237,7 @@ export class WeatherCard extends LitElement {
     }
 
     this.numberElements++;
-    if (this.config.graph === true) return this.renderForecastGraph();
+    if (this._config.graph === true) return this.renderForecastGraph();
     else return this.renderForecastTable();
   }
 
@@ -258,7 +261,7 @@ export class WeatherCard extends LitElement {
               ${forecast.templow !== undefined
                 ? html` <div class="lowTemp">${forecast.templow}${this.getUnit('temperature')}</div> `
                 : ''}
-              ${!this.config.hidePrecipitation &&
+              ${!this._config.hidePrecipitation &&
               forecast.precipitation !== undefined &&
               forecast.precipitation !== null
                 ? html`
@@ -267,7 +270,7 @@ export class WeatherCard extends LitElement {
                     </div>
                   `
                 : ''}
-              ${!this.config.hidePrecipitation &&
+              ${!this._config.hidePrecipitation &&
               forecast.precipitation_probability !== undefined &&
               forecast.precipitation_probability !== null
                 ? html`
@@ -494,8 +497,8 @@ export class WeatherCard extends LitElement {
   }
 
   private getWeatherIcon(condition: string, sun: HassEntity | null | undefined): string {
-    const iconPath = this.config.icons
-      ? this.config.icons
+    const iconPath = this._config.icons
+      ? this._config.icons
       : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/';
     const sunIcon = sun && sun.state === 'below_horizon' ? weatherIconsNight[condition] : weatherIconsDay[condition];
     return `${iconPath}${sunIcon}.svg`;
