@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import serve from 'rollup-plugin-serve';
 import json from '@rollup/plugin-json';
 
+// eslint-disable-next-line no-undef
 const dev = process.env.ROLLUP_WATCH;
 
 const serveopts = {
