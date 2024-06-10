@@ -83,3 +83,7 @@ interface WeatherEntityAttributes extends HassEntityAttributeBase {
 export interface WeatherEntity extends HassEntityBase {
   attributes: WeatherEntityAttributes;
 }
+
+export interface HassCustomElement extends CustomElementConstructor {
+  getConfigElement(): Promise<unknown>;
+}

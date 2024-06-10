@@ -2,14 +2,13 @@ import { LitElement, html, TemplateResult, CSSResult, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
-import { WeatherCardConfig, WeatherCardConfigKeys } from './types';
+import { HassCustomElement, WeatherCardConfig, WeatherCardConfigKeys } from './types';
 import { stopPropagation } from './const';
 
 @customElement('weather-card-editor')
 export class WeatherCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
   @state() private _config?: WeatherCardConfig;
-  @state() private _toggle?: boolean;
 
   private _initialized = false;
   private _config_version = 2;
@@ -68,6 +67,10 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
         this._configCleanup();
       }
     }
+
+    if (!customElements.get('ha-entity-picker')) {
+      (customElements.get('hui-entities-card') as HassCustomElement)?.getConfigElement();
+    }
   }
 
   get _name(): string {
@@ -121,103 +124,90 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
 
     return html`
       <div class="card-config">
-        <div>
-          <paper-input
-            label="Name"
-            .value=${this._name}
-            .configValue=${'name'}
-            @value-changed=${this._valueChanged}
-          ></paper-input>
-          <paper-input
-            label="Icons location"
-            .value=${this._icons}
-            .configValue=${'icons'}
-            @value-changed=${this._valueChanged}
-          ></paper-input>
-          <ha-entity-picker
-            .hass=${this.hass}
-            .value=${this._entity_weather}
-            .configValue=${'entity_weather'}
-            .includeDomains=${['sun', 'sensor']}
-            name="weather_entity"
-            label="Entity Weater"
-            allow-custom-entity
-            @value-changed=${this._valueChangedPicker}
-          ></ha-entity-picker>
-          <ha-entity-picker
-            .hass=${this.hass}
-            .value=${this._entity_sun}
-            .configValue=${'entity_sun'}
-            .includeDomains=${['sun', 'sensor']}
-            name="entity_sun"
-            label="Entity Sun"
-            allow-custom-entity
-            @value-changed=${this._valueChangedPicker}
-          ></ha-entity-picker>
-          <br />
-          <ha-select
-            label="Forecast Type"
-            .configValue=${'forecast_type'}
-            .value=${this._forecast_type}
-            @selected=${this._valueChangedPicker}
-            @closed=${stopPropagation}
-          >
-            <mwc-list-item></mwc-list-item>
-            <mwc-list-item value="daily">Daily</mwc-list-item>
-            <mwc-list-item value="hourly">Hourly</mwc-list-item>
-          </ha-select>
-          <div class="options">
-            <div class="option">
-              <ha-switch .checked=${this._current} .configValue=${'current'} @change=${this._valueChanged}></ha-switch>
-              <span class="label">Show current temperature</span>
-            </div>
-            <div class="option">
-              <ha-switch .checked=${this._details} .configValue=${'details'} @change=${this._valueChanged}></ha-switch>
-              <span class="label">Show weather details</span>
-            </div>
-            <div class="option">
-              <ha-switch
-                .checked=${this._forecast}
-                .configValue=${'forecast'}
-                @change=${this._valueChanged}
-              ></ha-switch>
-              <span class="label">Show forecast (table or graph)</span>
-            </div>
-            ${this._forecast
-              ? html`
-                  <div class="option">
-                    <ha-switch
-                      .checked=${this._graph}
-                      .configValue=${'graph'}
-                      @change=${this._valueChanged}
-                    ></ha-switch>
-                    <span class="label">Show graph</span>
-                  </div>
-                `
-              : nothing}
-            ${this._forecast && !this._graph
-              ? html`
-                  <div class="option">
-                    <ha-switch
-                      .checked=${this._hidePrecipitation}
-                      .configValue=${'hidePrecipitation'}
-                      @change=${this._valueChanged}
-                    ></ha-switch>
-                    <span class="label">Hide rain precipitation</span>
-                  </div>
-                `
-              : nothing}
+        <paper-input
+          label="Name"
+          .value=${this._name}
+          .configValue=${'name'}
+          @value-changed=${this._valueChanged}
+        ></paper-input>
+        <paper-input
+          label="Icons location"
+          .value=${this._icons}
+          .configValue=${'icons'}
+          @value-changed=${this._valueChanged}
+        ></paper-input>
+        <ha-entity-picker
+          label="Entity Weater"
+          .hass=${this.hass}
+          .value=${this._entity_weather}
+          .configValue=${'entity_weather'}
+          .includeDomains=${'weather'}
+          @change=${this._valueChangedPicker}
+          allow-custom-entity
+        ></ha-entity-picker>
+        <ha-entity-picker
+          label="Entity Sun"
+          .hass=${this.hass}
+          .value=${this._entity_sun}
+          .configValue=${'entity_sun'}
+          .includeDomains=${['sun', 'sensor']}
+          @change=${this._valueChangedPicker}
+          allow-custom-entity
+        ></ha-entity-picker>
+        <ha-select
+          label="Forecast Type"
+          .configValue=${'forecast_type'}
+          .value=${this._forecast_type}
+          @selected=${this._valueChangedPicker}
+          @closed=${stopPropagation}
+        >
+          <mwc-list-item></mwc-list-item>
+          <mwc-list-item value="daily">Daily</mwc-list-item>
+          <mwc-list-item value="hourly">Hourly</mwc-list-item>
+        </ha-select>
+        <div class="options">
+          <div class="option">
+            <ha-switch .checked=${this._current} .configValue=${'current'} @change=${this._valueChanged}></ha-switch>
+            <span class="label">Show current temperature</span>
           </div>
-          <paper-input
-            label="forecast max columns (optional)"
-            type="number"
-            .value=${this._forecastMaxColumn}
-            .configValue=${'forecastMaxColumn'}
-            @value-changed=${this._valueChangedNumber}
-            min="2"
-            max="20"
-          ></paper-input>
+          <div class="option">
+            <ha-switch .checked=${this._details} .configValue=${'details'} @change=${this._valueChanged}></ha-switch>
+            <span class="label">Show weather details</span>
+          </div>
+          <div class="option">
+            <ha-switch .checked=${this._forecast} .configValue=${'forecast'} @change=${this._valueChanged}></ha-switch>
+            <span class="label">Show forecast (table or graph)</span>
+          </div>
+          ${this._forecast
+            ? html`
+                <div class="option">
+                  <ha-switch .checked=${this._graph} .configValue=${'graph'} @change=${this._valueChanged}></ha-switch>
+                  <span class="label">Show graph</span>
+                </div>
+              `
+            : nothing}
+          ${this._forecast && !this._graph
+            ? html`
+                <div class="option">
+                  <ha-switch
+                    .checked=${this._hidePrecipitation}
+                    .configValue=${'hidePrecipitation'}
+                    @change=${this._valueChanged}
+                  ></ha-switch>
+                  <span class="label">Hide rain precipitation</span>
+                </div>
+              `
+            : nothing}
         </div>
+        <paper-input
+          label="forecast max columns (optional)"
+          type="number"
+          .value=${this._forecastMaxColumn}
+          .configValue=${'forecastMaxColumn'}
+          @value-changed=${this._valueChangedNumber}
+          min="2"
+          max="20"
+        ></paper-input>
       </div>
     `;
   }
