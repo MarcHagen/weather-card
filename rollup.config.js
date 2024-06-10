@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import serve from 'rollup-plugin-serve';
 import json from '@rollup/plugin-json';
 
+// eslint-disable-next-line no-undef
 const dev = process.env.ROLLUP_WATCH;
 
 const serveopts = {
@@ -25,6 +26,7 @@ const plugins = [
   json(),
   babel({
     exclude: 'node_modules/**',
+    babelHelpers: 'bundled',
   }),
   dev && serve(serveopts),
   !dev && terser(),
@@ -34,8 +36,9 @@ export default [
   {
     input: 'src/weather-card.ts',
     output: {
-      dir: 'dist',
+      file: 'dist/weather-card.js',
       format: 'es',
+      inlineDynamicImports: true,
     },
     plugins: [...plugins],
   },
