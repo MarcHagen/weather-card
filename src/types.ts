@@ -7,12 +7,10 @@ declare global {
   }
 }
 
-// @ts-expect-error 2391
-export function keys<T extends object>(): (keyof T)[];
-
 export interface WeatherCardConfig extends LovelaceCardConfig {
   entity_weather: string;
   entity_sun: string;
+  forecast_type?: ForecastType;
   card_config_version?: number;
   forecastMaxColumn?: number;
   icons?: string;
@@ -22,11 +20,19 @@ export interface WeatherCardConfig extends LovelaceCardConfig {
   graph?: boolean;
   hidePrecipitation?: boolean;
 }
-
-export enum CardMode {
-  hourly,
-  daily,
-}
+export const WeatherCardConfigKeys: string[] = [
+  'entity_weather',
+  'entity_sun',
+  'forecast_type',
+  'card_config_version',
+  'forecastMaxColumn',
+  'icons',
+  'details',
+  'forecast',
+  'current',
+  'graph',
+  'hidePrecipitation',
+];
 
 // https://github.com/home-assistant/frontend/blob/dev/src/data/weather.ts
 export type ModernForecastType = 'hourly' | 'daily' | 'twice_daily';

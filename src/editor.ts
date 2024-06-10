@@ -2,7 +2,7 @@ import { LitElement, html, TemplateResult, CSSResult, css } from 'lit-element';
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
-import { keys, WeatherCardConfig } from './types';
+import { WeatherCardConfig, WeatherCardConfigKeys } from './types';
 
 @customElement('weather-card-editor')
 export class WeatherCardEditor extends LitElement implements LovelaceCardEditor {
@@ -39,9 +39,8 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
     }
 
     // Remove unused entries
-    const keysOfProps = keys<WeatherCardConfig>();
     for (const element in this._config) {
-      if (!keysOfProps.includes(element)) {
+      if (!WeatherCardConfigKeys.includes(element)) {
         delete tmpConfig[element];
       }
     }
