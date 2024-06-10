@@ -1,8 +1,9 @@
-import { LitElement, html, TemplateResult, CSSResult, css } from 'lit-element';
+import { LitElement, html, TemplateResult, CSSResult, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { WeatherCardConfig, WeatherCardConfigKeys } from './types';
+import { stopPropagation } from './const';
 
 @customElement('weather-card-editor')
 export class WeatherCardEditor extends LitElement implements LovelaceCardEditor {
@@ -73,7 +74,7 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
     return this._config?.name || '';
   }
 
-  get _weather_entity(): string {
+  get _entity_weather(): string {
     return this._config?.entity_weather || '';
   }
 
@@ -113,57 +114,53 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
     return this._config?.hidePrecipitation === true;
   }
 
-  protected render(): TemplateResult | void {
-    if (!this.hass) return html``;
-
-    const entities = Object.keys(this.hass.states).filter((eid) => eid.substring(0, eid.indexOf('.')) === 'weather');
+  protected render(): TemplateResult | typeof nothing {
+    if (!this.hass || !this._config) {
+      return nothing;
+    }
 
     return html`
       <div class="card-config">
         <div>
           <paper-input
             label="Name"
-            .value="${this._name}"
-            .configValue="${'name'}"
-            @value-changed="${this._valueChanged}"
+            .value=${this._name}
+            .configValue=${'name'}
+            @value-changed=${this._valueChanged}
           ></paper-input>
           <paper-input
             label="Icons location"
-            .value="${this._icons}"
-            .configValue="${'icons'}"
-            @value-changed="${this._valueChanged}"
+            .value=${this._icons}
+            .configValue=${'icons'}
+            @value-changed=${this._valueChanged}
           ></paper-input>
-          ${customElements.get('ha-entity-picker')
-            ? html`
-                <ha-entity-picker
-                  .hass="${this.hass}"
-                  .value="${this._weather_entity}"
-                  .configValue=${'weather_entity'}
-                  domain-filter="weather"
-                  @change="${this._valueChangedPicker}"
-                  allow-custom-entity
-                ></ha-entity-picker>
-              `
-            : html`
-                <paper-dropdown-menu
-                  label="Entity"
-                  @value-changed="${this._valueChangedPicker}"
-                  .configValue="${'weather_entity'}"
-                >
-                  <paper-listbox slot="dropdown-content" .selected="${entities.indexOf(this._weather_entity)}">
-                    ${entities.map((entity) => {
-                      return html` <paper-item>${entity}</paper-item> `;
-                    })}
-                  </paper-listbox>
-                </paper-dropdown-menu>
-              `}
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._entity_weather}
+            .configValue=${'entity_weather'}
+            .includeDomains=${['sun', 'sensor']}
+            name="weather_entity"
+            label="Entity Weater"
+            allow-custom-entity
+            @value-changed=${this._valueChangedPicker}
+          ></ha-entity-picker>
+          <ha-entity-picker
+            .hass=${this.hass}
+            .value=${this._entity_sun}
+            .configValue=${'entity_sun'}
+            .includeDomains=${['sun', 'sensor']}
+            name="entity_sun"
+            label="Entity Sun"
+            allow-custom-entity
+            @value-changed=${this._valueChangedPicker}
+          ></ha-entity-picker>
           <br />
           <ha-select
             label="Forecast Type"
             .configValue=${'forecast_type'}
             .value=${this._forecast_type}
-            @closed=${(ev: { stopPropagation: () => unknown }) => ev.stopPropagation()}
             @selected=${this._valueChangedPicker}
+            @closed=${stopPropagation}
           >
             <mwc-list-item></mwc-list-item>
             <mwc-list-item value="daily">Daily</mwc-list-item>
@@ -171,26 +168,18 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
           </ha-select>
           <div class="options">
             <div class="option">
-              <ha-switch
-                .checked=${this._current}
-                .configValue="${'current'}"
-                @change="${this._valueChanged}"
-              ></ha-switch>
+              <ha-switch .checked=${this._current} .configValue=${'current'} @change=${this._valueChanged}></ha-switch>
               <span class="label">Show current temperature</span>
             </div>
             <div class="option">
-              <ha-switch
-                .checked=${this._details}
-                .configValue="${'details'}"
-                @change="${this._valueChanged}"
-              ></ha-switch>
+              <ha-switch .checked=${this._details} .configValue=${'details'} @change=${this._valueChanged}></ha-switch>
               <span class="label">Show weather details</span>
             </div>
             <div class="option">
               <ha-switch
                 .checked=${this._forecast}
-                .configValue="${'forecast'}"
-                @change="${this._valueChanged}"
+                .configValue=${'forecast'}
+                @change=${this._valueChanged}
               ></ha-switch>
               <span class="label">Show forecast (table or graph)</span>
             </div>
@@ -199,32 +188,32 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
                   <div class="option">
                     <ha-switch
                       .checked=${this._graph}
-                      .configValue="${'graph'}"
-                      @change="${this._valueChanged}"
+                      .configValue=${'graph'}
+                      @change=${this._valueChanged}
                     ></ha-switch>
                     <span class="label">Show graph</span>
                   </div>
                 `
-              : html``}
+              : nothing}
             ${this._forecast && !this._graph
               ? html`
                   <div class="option">
                     <ha-switch
                       .checked=${this._hidePrecipitation}
-                      .configValue="${'hidePrecipitation'}"
-                      @change="${this._valueChanged}"
+                      .configValue=${'hidePrecipitation'}
+                      @change=${this._valueChanged}
                     ></ha-switch>
                     <span class="label">Hide rain precipitation</span>
                   </div>
                 `
-              : html``}
+              : nothing}
           </div>
           <paper-input
             label="forecast max columns (optional)"
             type="number"
-            .value="${this._forecastMaxColumn}"
-            .configValue="${'forecastMaxColumn'}"
-            @value-changed="${this._valueChangedNumber}"
+            .value=${this._forecastMaxColumn}
+            .configValue=${'forecastMaxColumn'}
+            @value-changed=${this._valueChangedNumber}
             min="2"
             max="20"
           ></paper-input>

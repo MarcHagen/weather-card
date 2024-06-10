@@ -39,3 +39,5 @@ export const weatherIconsNight = {
   partlycloudy: 'cloudy-night-3',
   'windy-variant': 'cloudy-night-3',
 };
+
+export const stopPropagation = (ev: { stopPropagation: () => unknown }) => ev.stopPropagation();
