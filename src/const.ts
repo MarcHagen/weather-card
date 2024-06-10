@@ -1,6 +1,3 @@
-export const DAY_IN_MILLISECONDS = 86400000;
-export const UPDATE_PROPS = ['entity', 'config'];
-
 export const cardinalDirectionsIcon = [
   'mdi:arrow-down',
   'mdi:arrow-bottom-left',

@@ -1,38 +1,38 @@
-import { CSSResult, html, LitElement, PropertyValues, TemplateResult } from 'lit-element';
+import { CSSResult, html, LitElement, nothing, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators';
-import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
+import { fireEvent, HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
 import { HassEntity } from 'home-assistant-js-websocket/dist/types';
 
 import './style';
 
 import { localize } from './localize/localize';
-import { cardinalDirectionsIcon, DAY_IN_MILLISECONDS, UPDATE_PROPS, weatherIconsDay, weatherIconsNight } from './const';
-import type { WeatherCardConfig } from './types';
-import { CardMode, WeatherObjectForecast } from './types';
+import { cardinalDirectionsIcon, weatherIconsDay, weatherIconsNight } from './const';
+import { ForecastEvent, WeatherCardConfig } from './types';
 import { style } from './style';
 
 import './initialize';
-import { getLocale } from './helpers';
+import { getLocale, subscribeForecast } from './helpers';
 
 @customElement('weather-card')
-export class WeatherCard extends LitElement {
-  // https://lit-element.polymer-project.org/guide/properties
-  @property({ attribute: false }) public hass!: HomeAssistant;
+export class WeatherCard extends LitElement implements LovelaceCard {
+  // https://lit.dev/docs/components/properties/
+  @property({ attribute: false }) public hass?: HomeAssistant;
   @property({ attribute: false }) public chartData?: object;
+  // eslint-disable-next-line lit/attribute-names
+  @property({ type: Boolean }) public isPanel = false;
+  // eslint-disable-next-line lit/attribute-names
+  @property({ type: Boolean }) public editMode = false;
 
   @state() private _config!: WeatherCardConfig;
-  @state() private weatherObj: HassEntity | null | undefined;
   @state() private numberElements: number;
 
-  private forecast?: WeatherObjectForecast[];
-  private mode: CardMode;
-  private readonly currentLanguage: string;
+  // https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-weather-forecast-card.ts
+  @state() private _subscribed?: Promise<() => void>;
+  @state() private _forecastEvent?: ForecastEvent;
 
   constructor() {
     super();
     this.numberElements = 0;
-    this.mode = CardMode.daily;
-    this.currentLanguage = (localStorage.getItem('selectedLanguage') || 'en').replace(/['"]+/g, '');
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
@@ -43,101 +43,129 @@ export class WeatherCard extends LitElement {
   // https://lit-element.polymer-project.org/guide/properties#accessors-custom
   public setConfig(config: WeatherCardConfig): void {
     if (!config) {
-      throw new Error(localize('common.invalid_configuration', getLocale(this.hass)));
-    }
-
-    if (!config.entity_weather) {
-      throw new Error(localize('common.invalid_entity', getLocale(this.hass)));
+      throw new Error('Invalid configuration');
     }
 
     this._config = {
       name: '',
+      forecast_type: 'daily',
       ...config,
     };
-
-    this.setWeatherObj();
   }
 
-  private setWeatherObj(): void {
-    if (!this.hass || !this._config.entity_weather) return;
+  _needForecastSubscription(): boolean {
+    return (this._config &&
+      this._config.entity_weather &&
+      this._config.forecast_type &&
+      this._config.forecast_type !== 'legacy') as boolean;
+  }
 
-    this.weatherObj =
-      this._config.entity_weather in this.hass.states ? this.hass.states[this._config.entity_weather] : null;
-    if (!this.weatherObj) return;
+  _unsubscribeForecastEvents() {
+    if (this._subscribed) {
+      this._subscribed.then((unsub) => unsub());
+      this._subscribed = undefined;
+    }
+  }
 
-    if (!this._config.forecastMaxColumn || this._config.forecastMaxColumn < 2) {
-      this.forecast = this.weatherObj.attributes.forecast.slice(0, 9);
-    } else {
-      this.forecast = this.weatherObj.attributes.forecast.slice(0, this._config.forecastMaxColumn);
+  async _subscribeForecastEvents() {
+    this._unsubscribeForecastEvents();
+    if (!this.isConnected || !this.hass || !this._config || !this._needForecastSubscription()) {
+      return;
     }
 
-    if (!Array.isArray(this.forecast)) return;
+    // https://github/homeassistant/frontend/src/panels/lovelace/cards/hui-weather-forecast-card.ts
+    // Note: forecast_type required to be set.
+    // Note: forecast_type daily supported by this card but not hourly nor twice_daily
+    this._subscribed = subscribeForecast(
+      this.hass!,
+      this._config!.entity_weather,
+      this._config!.forecast_type as 'daily' | 'hourly' | 'twice_daily',
+      (event) => {
+        this._forecastEvent = event;
+      },
+    );
+  }
 
-    let hourly: boolean | undefined;
-
-    if (this.forecast?.length && this.forecast?.length > 2) {
-      const date1 = new Date(this.forecast[1].datetime);
-      const date2 = new Date(this.forecast[2].datetime);
-      const timeDiff = date2.getTime() - date1.getTime();
-
-      hourly = timeDiff < DAY_IN_MILLISECONDS;
-
-      if (hourly) {
-        this.mode = CardMode.hourly;
-      }
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.hasUpdated && this._config && this.hass) {
+      this._subscribeForecastEvents();
     }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._unsubscribeForecastEvents();
   }
 
   // https://lit-element.polymer-project.org/guide/lifecycle#shouldupdate
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (!this.weatherObj) return true;
+    if (!this._config) {
+      return false;
+    }
 
-    return UPDATE_PROPS.some((prop) => changedProps.has(prop));
+    if (changedProps.has('_config') || changedProps.has('_forecastEvent')) {
+      return true;
+    }
+
+    if (changedProps.has('hass')) {
+      return true;
+    }
+
+    const oldHass = (changedProps.get('hass') as HomeAssistant) || undefined;
+    if (!oldHass || oldHass.themes !== this.hass!.themes || oldHass.locale !== this.hass!.locale) {
+      return true;
+    }
+
+    // Check if any entities mentioned in the config have changed
+    if (
+      Object.keys(this._config).every((entity) => {
+        if (entity.match(/^entity_/) !== null) {
+          if (oldHass.states[this._config[entity]] !== this.hass!.states[this._config[entity]]) {
+            return false;
+          }
+        }
+        return true;
+      }) === false
+    ) {
+      return true;
+    }
+
+    return changedProps.has('config');
   }
 
-  // https://lit-element.polymer-project.org/guide/lifecycle#updated
-  protected updated(): void {
-    this.setWeatherObj();
-
-    // @ts-expect-error 2531
-    const chart = this.shadowRoot.querySelector('#Chart');
-    if (chart) {
-      // @ts-expect-error 2339
-      chart.data = this.chartData;
-      // @ts-expect-error 2339
-      chart.hass = this.hass;
+  updated(changedProps: PropertyValues) {
+    if (!this.hass || !this._config) {
+      return;
+    }
+    if (changedProps.has('_config') || !this._subscribed) {
+      this._subscribeForecastEvents();
     }
   }
 
   // https://lit-element.polymer-project.org/guide/templates
-  protected render(): TemplateResult | void {
+  protected render(): TemplateResult | typeof nothing {
     if (!this._config || !this.hass) {
-      return html``;
+      return nothing;
     }
 
-    this.setWeatherObj();
-    this.numberElements = 0;
-
-    if (!this.weatherObj) {
-      return html`
-        <style>
-          .not-found {
-            flex: 1;
-            background-color: yellow;
-            padding: 8px;
-          }
-        </style>
-        <ha-card>
-          <div class="not-found">Entity not available: ${this._config.entity_weather}</div>
-        </ha-card>
-      `;
+    const stateObj = this.hass!.states[this._config.entity_weather];
+    if (!stateObj) {
+      return nothing;
     }
 
     return html`
-      <ha-card @click="${this._handleClick}">
+      <ha-card @click=${this._handleClick}>
         ${this._config.current !== false ? this.renderCurrent() : ''}
         ${this._config.details !== false ? this.renderDetails() : ''}
-        ${this._config.forecast !== false ? this.renderForecast() : ''}
+        ${this._config.forecast !== false
+          ? this.renderForecast(
+              this._forecastEvent || {
+                forecast: stateObj!.attributes.forecast,
+                type: 'daily',
+              },
+            )
+          : ''}
       </ha-card>
     `;
   }
@@ -146,37 +174,45 @@ export class WeatherCard extends LitElement {
     fireEvent(this, 'hass-more-info', { entityId: this._config.entity_weather });
   }
 
-  private renderCurrent(): TemplateResult {
+  private renderCurrent(): TemplateResult | typeof nothing {
     this.numberElements++;
-    if (!this.weatherObj) return html``;
+
+    const weatherObj = this.hass!.states[this._config.entity_weather];
+    if (!weatherObj) {
+      return nothing;
+    }
 
     return html`
       <div class="current ${this.numberElements > 1 ? 'spacer' : ''}">
         <span
           class="icon bigger"
           style="background: none, url('${this.getWeatherIcon(
-            this.weatherObj.state.toLowerCase(),
-            this.hass.states['sun.sun'],
+            weatherObj.state.toLowerCase(),
+            this.hass!.states[this._config.entity_sun],
           )}') no-repeat; background-size: contain;"
-          >${this.weatherObj.state}</span
+          >${weatherObj.state}</span
         >
         ${this._config.name ? html`<span class="title"> ${this._config.name} </span>` : ''}
         <span class="temp"
           >${this.getUnit('temperature') == '°F'
-            ? Math.round(this.weatherObj.attributes.temperature)
-            : this.weatherObj.attributes.temperature}</span
+            ? Math.round(weatherObj.attributes.temperature)
+            : weatherObj.attributes.temperature}</span
         >
         <span class="tempc"> ${this.getUnit('temperature')}</span>
       </div>
     `;
   }
 
-  private renderDetails(): TemplateResult {
-    if (!this.weatherObj) return html``;
+  private renderDetails(): TemplateResult | typeof nothing {
+    const sun = this.hass!.states[this._config.entity_sun];
+    const weatherObj = this.hass!.states[this._config.entity_weather];
+    if (!weatherObj || !sun) {
+      return nothing;
+    }
 
-    const sun = this.hass.states['sun.sun'];
-    let nextRising;
-    let nextSetting;
+    const locale = getLocale(this.hass!);
+    let nextRising: Date | undefined;
+    let nextSetting: Date | undefined;
 
     if (sun) {
       nextRising = new Date(sun.attributes.next_rising);
@@ -189,25 +225,25 @@ export class WeatherCard extends LitElement {
       <ul class="variations ${this.numberElements > 1 ? 'spacer' : ''}">
         <li>
           <ha-icon icon="mdi:water-percent"></ha-icon>
-          ${this.weatherObj.attributes.humidity}<span class="unit"> % </span>
+          ${weatherObj.attributes.humidity}<span class="unit"> % </span>
         </li>
         <li>
-          ${WeatherCard.getWindDir(this.hass, this.weatherObj.attributes.wind_bearing)}
+          ${WeatherCard.getWindDir(this.hass!, weatherObj.attributes.wind_bearing)}
           <ha-icon
             style="margin-left: 0;"
-            icon="hass:${WeatherCard.getWindDirIcon(this.weatherObj.attributes.wind_bearing)}"
+            icon="hass:${WeatherCard.getWindDirIcon(weatherObj.attributes.wind_bearing)}"
           ></ha-icon>
-          ${this.weatherObj.attributes.wind_speed}
+          ${weatherObj.attributes.wind_speed}
           <span class="unit">${this.getUnit('length')}/h</span>${this.getWindForce()}
           <ha-icon icon="mdi:weather-windy"></ha-icon>
         </li>
         <li>
           <ha-icon icon="mdi:gauge"></ha-icon>
-          ${this.weatherObj.attributes.pressure}
+          ${weatherObj.attributes.pressure}
           <span class="unit">${this.getUnit('air_pressure')}</span>
         </li>
         <li>
-          ${this.weatherObj.attributes.visibility}
+          ${weatherObj.attributes.visibility}
           <span class="unit">${this.getUnit('length')}</span>
           <ha-icon icon="mdi:weather-fog"></ha-icon>
         </li>
@@ -215,14 +251,14 @@ export class WeatherCard extends LitElement {
           ? html`
               <li>
                 <ha-icon icon="mdi:weather-sunset-up"></ha-icon>
-                ${nextRising.toLocaleTimeString(this.currentLanguage)}
+                ${nextRising.toLocaleTimeString(locale.language)}
               </li>
             `
           : ''}
         ${nextSetting
           ? html`
               <li>
-                ${nextSetting.toLocaleTimeString(this.currentLanguage)}
+                ${nextSetting.toLocaleTimeString(locale.language)}
                 <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
               </li>
             `
@@ -231,94 +267,93 @@ export class WeatherCard extends LitElement {
     `;
   }
 
-  private renderForecast(): TemplateResult {
-    if (!this.forecast || this.forecast.length === 0) {
-      return html``;
+  private renderForecast(forecast: ForecastEvent): TemplateResult | typeof nothing {
+    if (!forecast.forecast || forecast.forecast.length === 0) {
+      return nothing;
     }
 
     this.numberElements++;
-    if (this._config.graph === true) return this.renderForecastGraph();
-    else return this.renderForecastTable();
+    if (this._config.graph === true) return this.renderForecastGraph(forecast);
+    else return this.renderForecastTable(forecast);
   }
 
-  private renderForecastTable(): TemplateResult {
-    if (!this.forecast || this.forecast.length === 0) return html``;
+  private renderForecastTable(forecast: ForecastEvent): TemplateResult | typeof nothing {
+    if (!forecast || !forecast.forecast || forecast.forecast.length === 0) return nothing;
 
-    return html`
-      <div class="forecast clear ${this.numberElements > 1 ? 'spacer' : ''}">
-        ${this.forecast.map(
-          (forecast) => html`
-            <div class="day">
-              <div class="dayname">${this.getDateString(forecast.datetime)}</div>
-              <i
-                class="icon"
-                style="background: none, url('${this.getWeatherIcon(
-                  forecast.condition.toLowerCase(),
-                  this.hass.states['sun.sun'],
-                )}') no-repeat; background-size: contain"
-              ></i>
-              <div class="highTemp">${forecast.temperature}${this.getUnit('temperature')}</div>
-              ${forecast.templow !== undefined
-                ? html` <div class="lowTemp">${forecast.templow}${this.getUnit('temperature')}</div> `
-                : ''}
-              ${!this._config.hidePrecipitation &&
-              forecast.precipitation !== undefined &&
-              forecast.precipitation !== null
-                ? html`
-                    <div class="precipitation">
-                      ${Math.round(forecast.precipitation * 10) / 10} ${this.getUnit('precipitation')}
-                    </div>
-                  `
-                : ''}
-              ${!this._config.hidePrecipitation &&
-              forecast.precipitation_probability !== undefined &&
-              forecast.precipitation_probability !== null
-                ? html`
-                    <div class="precipitation_probability">
-                      ${Math.round(forecast.precipitation_probability * 10) / 10}
-                      ${this.getUnit('precipitation_probability')}
-                    </div>
-                  `
-                : ''}
-            </div>
-          `,
-        )}
-      </div>
-    `;
+    const listItems = forecast.forecast
+      .slice(0, this._config.forecastMaxColumn ? this._config.forecastMaxColumn : 5)
+      .map(
+        (daily) => html`
+          <div class="day">
+            <div class="dayname">${this.getDateString(forecast, daily.datetime)}</div>
+            ${daily.condition
+              ? html` <i
+                  class="icon"
+                  style="background: none, url('${this.getWeatherIcon(
+                    daily.condition.toLowerCase(),
+                    this.hass!.states[this._config.entity_sun],
+                  )}') no-repeat; background-size: contain"
+                ></i>`
+              : ''}
+            <div class="highTemp">${daily.temperature}${this.getUnit('temperature')}</div>
+            ${daily.templow !== undefined
+              ? html` <div class="lowTemp">${daily.templow}${this.getUnit('temperature')}</div> `
+              : ''}
+            ${!this._config.hidePrecipitation && daily.precipitation !== undefined && daily.precipitation !== null
+              ? html`
+                  <div class="precipitation">
+                    ${Math.round(daily.precipitation * 10) / 10} ${this.getUnit('precipitation')}
+                  </div>
+                `
+              : ''}
+            ${!this._config.hidePrecipitation &&
+            daily.precipitation_probability !== undefined &&
+            daily.precipitation_probability !== null
+              ? html`
+                  <div class="precipitation_probability">
+                    ${Math.round(daily.precipitation_probability * 10) / 10}
+                    ${this.getUnit('precipitation_probability')}
+                  </div>
+                `
+              : ''}
+          </div>
+        `,
+      );
+    return html` <div class="forecast clear ${this.numberElements > 1 ? 'spacer' : ''}">${listItems}</div>`;
   }
 
-  private renderForecastGraph(): TemplateResult {
-    if (!this.forecast || this.forecast.length === 0) return html``;
+  private renderForecastGraph(forecast: ForecastEvent): TemplateResult | typeof nothing {
+    if (!forecast.forecast || forecast.forecast.length === 0) return nothing;
 
-    this.drawChart();
+    this.drawChart(forecast);
+    const listItems = forecast.forecast.map((daily) =>
+      daily.condition
+        ? html` <i
+            class="icon"
+            style="background: none, url('${this.getWeatherIcon(
+              daily.condition.toLowerCase(),
+              this.hass!.states[this._config.entity_sun],
+            )}') no-repeat; background-size: contain"
+          ></i>`
+        : '',
+    );
     return html`
       <div class="clear ${this.numberElements > 1 ? 'spacer' : ''}">
         <ha-chart-base id="Chart"></ha-chart-base>
       </div>
-      <div class="conditions">
-        ${this.forecast.map(
-          (forecast) =>
-            html` <i
-              class="icon"
-              style="background: none, url('${this.getWeatherIcon(
-                forecast.condition.toLowerCase(),
-                this.hass.states['sun.sun'],
-              )}') no-repeat; background-size: contain"
-            ></i>`,
-        )}
-      </div>
+      <div class="conditions">${listItems}</div>
     `;
   }
 
-  private drawChart(): void {
-    if (!this.forecast) return;
+  private drawChart(forecast: ForecastEvent): void {
+    if (!forecast.forecast || forecast.forecast.length === 0) return;
 
     const dateTime: Date[] = [];
     const tempHigh: number[] = [];
     const tempLow: number[] = [];
     const precip: number[] = [];
 
-    for (const d of this.forecast) {
+    for (const d of forecast.forecast) {
       dateTime.push(new Date(d.datetime));
       tempHigh.push(d.temperature);
       if (d.templow) {
@@ -331,6 +366,7 @@ export class WeatherCard extends LitElement {
     const style = getComputedStyle(document.body);
     const textColor = style.getPropertyValue('--primary-text-color');
     const dividerColor = style.getPropertyValue('--divider-color');
+    const locale = getLocale(this.hass!);
 
     this.chartData = {
       type: 'bar',
@@ -338,10 +374,7 @@ export class WeatherCard extends LitElement {
         labels: dateTime,
         datasets: [
           {
-            label:
-              this.mode === CardMode.hourly
-                ? localize('temp', getLocale(this.hass))
-                : localize('tempHi', getLocale(this.hass)),
+            label: forecast.type === 'hourly' ? localize('temp', locale) : localize('tempHi', locale),
             type: 'line',
             data: tempHigh,
             yAxisID: 'TempAxis',
@@ -352,7 +385,7 @@ export class WeatherCard extends LitElement {
             fill: false,
           },
           {
-            label: localize('tempLo', getLocale(this.hass)),
+            label: localize('tempLo', locale),
             type: 'line',
             data: tempLow,
             yAxisID: 'TempAxis',
@@ -363,7 +396,7 @@ export class WeatherCard extends LitElement {
             fill: false,
           },
           {
-            label: localize('precip', getLocale(this.hass)),
+            label: localize('precip', locale),
             type: 'bar',
             data: precip,
             yAxisID: 'PrecipAxis',
@@ -424,7 +457,7 @@ export class WeatherCard extends LitElement {
                 fontColor: textColor,
                 maxRotation: 0,
                 callback: (value): string => {
-                  return this.getDateString(value);
+                  return this.getDateString(forecast, value);
                 },
               },
             },
@@ -473,7 +506,7 @@ export class WeatherCard extends LitElement {
             title: (items, data): string => {
               const item = items[0];
               const date = data.labels[item.index];
-              return new Date(date).toLocaleDateString(this.currentLanguage, {
+              return new Date(date).toLocaleDateString(locale.language, {
                 month: 'long',
                 day: 'numeric',
                 weekday: 'long',
@@ -518,43 +551,47 @@ export class WeatherCard extends LitElement {
 
   // beaufortWind - returns the wind speed on the beaufort scale
   // reference https://en.wikipedia.org/wiki/Beaufort_scale
-  private getWindForce(): TemplateResult {
-    if (this.getUnit('length') !== 'km' || !this.weatherObj) {
-      return html``;
+  private getWindForce(): TemplateResult | typeof nothing {
+    const weatherObj = this.hass!.states[this._config.entity_weather];
+    if (this.getUnit('length') !== 'km' || !weatherObj) {
+      return nothing;
     }
 
-    const force = Math.ceil(Math.cbrt(Math.pow(this.weatherObj.attributes.wind_speed / 3.6 / 0.836, 2)));
+    const force = Math.ceil(Math.cbrt(Math.pow(weatherObj.attributes.wind_speed / 3.6 / 0.836, 2)));
     return html` | ${force} <span class="unit">Bft</span>`;
   }
 
-  private getUnit(measure): string {
-    const lengthUnit = this.hass.config.unit_system.length;
+  private getUnit(
+    measure: 'air_pressure' | 'length' | 'precipitation' | 'intensity' | 'precipitation_probability' | string,
+  ): string {
+    const lengthUnit = this.hass!.config.unit_system.length;
+    const locale = getLocale(this.hass!);
     switch (measure) {
       case 'air_pressure':
-        return lengthUnit === 'km' ? localize('uPress', getLocale(this.hass)) : 'mbar';
+        return lengthUnit === 'km' ? localize('uPress', locale) : 'mbar';
       case 'length':
         return lengthUnit;
       case 'precipitation':
-        return lengthUnit === 'km' ? localize('uPrecip', getLocale(this.hass)) : 'in';
+        return lengthUnit === 'km' ? localize('uPrecip', locale) : 'in';
       case 'intensity':
-        return lengthUnit === 'km' ? localize('uPrecip', getLocale(this.hass)) + '/h' : 'in/h';
+        return lengthUnit === 'km' ? localize('uPrecip', locale) + '/h' : 'in/h';
       case 'precipitation_probability':
         return '%';
       default:
-        return this.hass.config.unit_system[measure] || '';
+        return this.hass!.config.unit_system[measure] || '';
     }
   }
 
-  private getDateString(datetime: string): string {
-    if (this.mode === CardMode.hourly) {
-      return new Date(datetime).toLocaleTimeString(this.currentLanguage, { hour: 'numeric' });
+  private getDateString(forecast: ForecastEvent, datetime: string): string {
+    if (forecast.type === 'hourly') {
+      return new Date(datetime).toLocaleTimeString(getLocale(this.hass!).language, { hour: 'numeric' });
     }
 
-    return new Date(datetime).toLocaleDateString(this.currentLanguage, { weekday: 'short' });
+    return new Date(datetime).toLocaleDateString(getLocale(this.hass!).language, { weekday: 'short' });
   }
 
-  private getCardSize(): number {
-    return this.numberElements || 3;
+  public getCardSize(): number | Promise<number> {
+    return 1;
   }
 
   // https://lit-element.polymer-project.org/guide/styles
