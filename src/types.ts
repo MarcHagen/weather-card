@@ -36,7 +36,7 @@ export type ForecastType = ModernForecastType | 'legacy';
 // https://github.com/home-assistant/frontend/blob/dev/src/data/weather.ts
 export interface ForecastEvent {
   type: 'hourly' | 'daily' | 'twice_daily';
-  forecast: [ForecastAttribute] | null;
+  forecast: ForecastAttribute[] | null;
 }
 
 // https://github.com/home-assistant/frontend/blob/dev/src/data/weather.ts
