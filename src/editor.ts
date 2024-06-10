@@ -78,7 +78,11 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
   }
 
   get _entity_sun(): string {
-    return this._config?.entity_sun || '';
+    return this._config?.entity_sun || 'sun.sun';
+  }
+
+  get _forecast_type(): string {
+    return this._config?.forecast_type || 'daily';
   }
 
   get _icons(): string {
@@ -102,7 +106,7 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
   }
 
   get _forecastMaxColumn(): number {
-    return this._config?.forecastMaxColumn || 9;
+    return this._config?.forecastMaxColumn || 5;
   }
 
   get _hidePrecipitation(): boolean {
@@ -154,6 +158,17 @@ export class WeatherCardEditor extends LitElement implements LovelaceCardEditor 
                 </paper-dropdown-menu>
               `}
           <br />
+          <ha-select
+            label="Forecast Type"
+            .configValue=${'forecast_type'}
+            .value=${this._forecast_type}
+            @closed=${(ev: { stopPropagation: () => unknown }) => ev.stopPropagation()}
+            @selected=${this._valueChangedPicker}
+          >
+            <mwc-list-item></mwc-list-item>
+            <mwc-list-item value="daily">Daily</mwc-list-item>
+            <mwc-list-item value="hourly">Hourly</mwc-list-item>
+          </ha-select>
           <div class="options">
             <div class="option">
               <ha-switch
