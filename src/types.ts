@@ -8,6 +8,7 @@ declare global {
 }
 
 export interface WeatherCardConfig extends LovelaceCardConfig {
+  type: string;
   entity_weather: string;
   entity_sun: string;
   forecast_type?: ForecastType;
@@ -21,6 +22,7 @@ export interface WeatherCardConfig extends LovelaceCardConfig {
   hidePrecipitation?: boolean;
 }
 export const WeatherCardConfigKeys: string[] = [
+  'type',
   'entity_weather',
   'entity_sun',
   'forecast_type',
