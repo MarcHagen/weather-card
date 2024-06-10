@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     // Language Options
-    "target": "ES2021",
-    "lib": ["ES2021", "dom", "dom.iterable"],
+    "target": "es2021",
+    "lib": ["es2021", "dom", "dom.iterable"],
     "experimentalDecorators": true,
     // Modules
     "module": "esnext",

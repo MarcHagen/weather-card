@@ -26,6 +26,7 @@ const plugins = [
   json(),
   babel({
     exclude: 'node_modules/**',
+    babelHelpers: 'bundled',
   }),
   dev && serve(serveopts),
   !dev && terser(),
@@ -35,8 +36,9 @@ export default [
   {
     input: 'src/weather-card.ts',
     output: {
-      dir: 'dist',
+      file: 'dist/weather-card.js',
       format: 'es',
+      inlineDynamicImports: true,
     },
     plugins: [...plugins],
   },
