@@ -413,22 +413,21 @@ export class WeatherCard extends LitElement implements LovelaceCard {
         animation: {
           duration: 300,
           easing: 'linear',
-          onComplete: function (): void {
-            // @ts-expect-error 2339
-            const chartInstance = this.chart;
-            const ctx = chartInstance.ctx;
+          onComplete: function (this: ChartType): void {
+            const ctx = this.ctx;
             ctx.fillStyle = textColor;
             const fontSize = 10;
             const fontStyle = 'normal';
             const fontFamily = 'Roboto';
-            // @ts-expect-error 2304
-            ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+            ctx.font = fontString(fontSize, fontStyle, fontFamily);
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            const meta = chartInstance.controller.getDatasetMeta(2);
-            meta.data.forEach(function (bar: { _model: { x: never; y: number } }, index: string | number) {
-              const data = (Math.round(chartInstance.data.datasets[2].data[index] * 10) / 10).toFixed(1);
-              ctx.fillText(data, bar._model.x, bar._model.y - 5);
+            const meta = this.getDatasetMeta(2);
+            meta.data.forEach((bar, index) => {
+              // @ts-expect-error 2339
+              const data = (Math.round(this.data.datasets[2].data[index] * 10) / 10).toFixed(1);
+              const { barX, barY } = bar.getProps(['x', 'y']);
+              ctx.fillText(data, barX, barY - 5);
             });
           },
         },
