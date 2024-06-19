@@ -432,8 +432,39 @@ export class WeatherCard extends LitElement implements LovelaceCard {
             });
           },
         },
-        legend: {
-          display: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            mode: 'index',
+            callbacks: {
+              title: (datasets): string => {
+                const item = datasets[0];
+                const date = new Date(item.parsed.x);
+                return date.toLocaleDateString(locale.language, {
+                  month: 'long',
+                  day: 'numeric',
+                  weekday: 'long',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                });
+              },
+              label: (tooltipItem: TooltipItem<'line' | 'bar'>) => {
+                if (tooltipItem.datasetIndex === 2) {
+                  return (
+                    tooltipItem.dataset.label +
+                    ': ' +
+                    (tooltipItem.parsed.y
+                      ? tooltipItem.parsed.y + ' ' + this.getUnit('precipitation')
+                      : '0 ' + this.getUnit('precipitation'))
+                  );
+                }
+
+                return tooltipItem.dataset.label + ': ' + tooltipItem.parsed.y + ' ' + this.getUnit('temperature');
+              },
+            },
+          },
         },
         scales: {
           x: {
@@ -470,8 +501,8 @@ export class WeatherCard extends LitElement implements LovelaceCard {
               autoSkip: true,
               color: textColor,
               maxRotation: 0,
-              callback: (value): string => {
-                return this.getDateString(forecast, value);
+              callback: (tickValue: number | string): string => {
+                return this.getDateString(forecast, tickValue.toString());
               },
             },
           },
@@ -512,35 +543,6 @@ export class WeatherCard extends LitElement implements LovelaceCard {
             },
             afterFit: (scaleInstance): void => {
               scaleInstance.width = 15;
-            },
-          },
-        },
-        tooltips: {
-          mode: 'index',
-          callbacks: {
-            title: (items, data): string => {
-              const item = items[0];
-              const date = data.labels[item.index];
-              return new Date(date).toLocaleDateString(locale.language, {
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long',
-                hour: 'numeric',
-                minute: 'numeric',
-              });
-            },
-            label: (tooltipItems, data): string => {
-              const label = data.datasets[tooltipItems.datasetIndex].label || '';
-              if (data.datasets[2].label === label) {
-                return (
-                  label +
-                  ': ' +
-                  (tooltipItems.yLabel
-                    ? tooltipItems.yLabel + ' ' + this.getUnit('precipitation')
-                    : '0 ' + this.getUnit('precipitation'))
-                );
-              }
-              return label + ': ' + tooltipItems.yLabel + ' ' + this.getUnit('temperature');
             },
           },
         },
