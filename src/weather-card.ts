@@ -435,75 +435,74 @@ export class WeatherCard extends LitElement implements LovelaceCard {
           display: false,
         },
         scales: {
-          xAxes: [
-            {
-              type: 'time',
-              maxBarThickness: 15,
+          x: {
+            type: 'time',
+            display: false,
+            ticks: {
               display: false,
-              ticks: {
-                display: false,
-              },
-              gridLines: {
-                display: false,
+            },
+            grid: {
+              display: false,
+            },
+          },
+          DateAxis: {
+            position: 'top',
+            grid: {
+              display: true,
+              color: dividerColor,
+            },
+            border: {
+              display: false,
+              dash: [1, 3],
+            },
+            ticks: {
+              display: true,
+              source: 'labels',
+              autoSkip: true,
+              color: textColor,
+              maxRotation: 0,
+              callback: (value): string => {
+                return this.getDateString(forecast, value);
               },
             },
-            {
-              id: 'DateAxis',
-              position: 'top',
-              gridLines: {
-                display: true,
-                drawBorder: false,
-                color: dividerColor,
-              },
-              ticks: {
-                display: true,
-                source: 'labels',
-                autoSkip: true,
-                fontColor: textColor,
-                maxRotation: 0,
-                callback: (value): string => {
-                  return this.getDateString(forecast, value);
-                },
-              },
+          },
+          TempAxis: {
+            position: 'left',
+            grid: {
+              display: true,
+              color: dividerColor,
             },
-          ],
-          yAxes: [
-            {
-              id: 'TempAxis',
-              position: 'left',
-              gridLines: {
-                display: true,
-                drawBorder: false,
-                color: dividerColor,
-                borderDash: [1, 3],
-              },
-              ticks: {
-                display: true,
-                fontColor: textColor,
-              },
-              afterFit: (scaleInstance): void => {
-                scaleInstance.width = 28;
-              },
+            border: {
+              display: false,
+              dash: [1, 3],
             },
-            {
-              id: 'PrecipAxis',
-              position: 'right',
-              gridLines: {
-                display: false,
-                drawBorder: false,
-                color: dividerColor,
-              },
-              ticks: {
-                display: false,
-                min: 0,
-                suggestedMax: 20,
-                fontColor: textColor,
-              },
-              afterFit: (scaleInstance): void => {
-                scaleInstance.width = 15;
-              },
+            ticks: {
+              display: true,
+              color: textColor,
             },
-          ],
+            afterFit: (scaleInstance): void => {
+              scaleInstance.width = 28;
+            },
+          },
+          PrecipAxis: {
+            position: 'right',
+            grid: {
+              display: false,
+              color: dividerColor,
+            },
+            border: {
+              display: false,
+            },
+            min: 0,
+            suggestedMax: 20,
+            ticks: {
+              display: false,
+              color: textColor,
+            },
+            afterFit: (scaleInstance): void => {
+              scaleInstance.width = 15;
+            },
+          },
         },
         tooltips: {
           mode: 'index',
