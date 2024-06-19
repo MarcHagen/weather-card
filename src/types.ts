@@ -1,5 +1,10 @@
 import { LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
 import { HassEntityAttributeBase, HassEntityBase } from 'home-assistant-js-websocket';
+import type {
+  ChartType as ChartJsChartType,
+  ChartOptions as ChartJsChartOptions,
+  ChartData as ChartJsChartData,
+} from 'chart.js';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -86,4 +91,10 @@ export interface WeatherEntity extends HassEntityBase {
 
 export interface HassCustomElement extends CustomElementConstructor {
   getConfigElement(): Promise<unknown>;
+}
+
+export interface ChartData {
+  type: ChartJsChartType;
+  data: ChartJsChartData;
+  options: ChartJsChartOptions;
 }

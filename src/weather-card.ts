@@ -7,7 +7,7 @@ import './style';
 
 import { localize } from './localize/localize';
 import { cardinalDirectionsIcon, weatherIconsDay, weatherIconsNight } from './const';
-import { ForecastEvent, WeatherCardConfig } from './types';
+import { ChartData, ForecastEvent, WeatherCardConfig } from './types';
 import { style } from './style';
 
 import './initialize';
@@ -17,7 +17,7 @@ import { getLocale, subscribeForecast } from './helpers';
 export class WeatherCard extends LitElement implements LovelaceCard {
   // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass?: HomeAssistant;
-  @property({ attribute: false }) public chartData?: object;
+  @property({ attribute: false }) public chartData?: ChartData;
   // eslint-disable-next-line lit/attribute-names
   @property({ type: Boolean }) public isPanel = false;
   // eslint-disable-next-line lit/attribute-names
@@ -339,7 +339,12 @@ export class WeatherCard extends LitElement implements LovelaceCard {
     );
     return html`
       <div class="clear ${this.numberElements > 1 ? 'spacer' : ''}">
-        <ha-chart-base id="Chart"></ha-chart-base>
+        <ha-chart-base
+          .chartType=${this.chartData!.type}
+          .data=${this.chartData!.data}
+          .options=${this.chartData!.options}
+          .hass=${this.hass}
+        ></ha-chart-base>
       </div>
       <div class="conditions">${listItems}</div>
     `;
