@@ -231,7 +231,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
           ${WeatherCard.getWindDir(this.hass!, weatherObj.attributes.wind_bearing)}
           <ha-icon
             style="margin-left: 0;"
-            icon="hass:${WeatherCard.getWindDirIcon(weatherObj.attributes.wind_bearing)}"
+            .icon=${WeatherCard.getWindDirIcon(weatherObj.attributes.wind_bearing)}
           ></ha-icon>
           ${weatherObj.attributes.wind_speed}
           <span class="unit">${this.getUnit('length')}/h</span>${this.getWindForce()}
@@ -541,13 +541,13 @@ export class WeatherCard extends LitElement implements LovelaceCard {
   private getWeatherIcon(condition: string, sun: HassEntity | null | undefined): string {
     const iconPath = this._config.icons
       ? this._config.icons
-      : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/';
+      : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/animated/';
     const sunIcon = sun && sun.state === 'below_horizon' ? weatherIconsNight[condition] : weatherIconsDay[condition];
     return `${iconPath}${sunIcon}.svg`;
   }
 
   private static getWindDirIcon(degree: number): string {
-    return cardinalDirectionsIcon[(degree + 22.5) / 45.0];
+    return cardinalDirectionsIcon[round((degree + 22.5) / 45.0, 0)];
   }
 
   private static getWindDir(hass: HomeAssistant, degree: number): string {
