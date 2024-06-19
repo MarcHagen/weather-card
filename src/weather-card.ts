@@ -340,10 +340,10 @@ export class WeatherCard extends LitElement implements LovelaceCard {
     return html`
       <div class="clear ${this.numberElements > 1 ? 'spacer' : ''}">
         <ha-chart-base
-          .chartType=${this.chartData!.type}
           .data=${this.chartData!.data}
           .options=${this.chartData!.options}
           .hass=${this.hass}
+          chart-type="bar"
         ></ha-chart-base>
       </div>
       <div class="conditions">${listItems}</div>
@@ -374,7 +374,6 @@ export class WeatherCard extends LitElement implements LovelaceCard {
     const locale = getLocale(this.hass!);
 
     this.chartData = {
-      type: 'bar',
       data: {
         labels: dateTime,
         datasets: [
