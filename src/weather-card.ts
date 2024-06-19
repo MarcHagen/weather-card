@@ -1,34 +1,46 @@
 import { CSSResult, html, LitElement, nothing, PropertyValues, TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators';
-import { fireEvent, HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
-import { HassEntity } from 'home-assistant-js-websocket/dist/types';
-
-import './style';
-
-import { localize } from './localize/localize';
-import { cardinalDirectionsIcon, weatherIconsDay, weatherIconsNight } from './const';
+import { Chart as ChartType } from 'chart.js/dist/types';
 import { ChartData, ForecastEvent, WeatherCardConfig } from './types';
+import { HassEntity } from 'home-assistant-js-websocket/dist/types';
+import { TooltipItem } from 'chart.js';
+import { cardinalDirectionsIcon, weatherIconsDay, weatherIconsNight } from './const';
+import { customElement, property, state } from 'lit/decorators';
+import { fireEvent, HomeAssistant, LovelaceCard, LovelaceCardEditor, round } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
+import { fontString } from 'chart.js/helpers/helpers';
+import { getLocale, subscribeForecast } from './helpers';
+import { localize } from './localize/localize';
 import { style } from './style';
 
+import './style';
 import './initialize';
-import { getLocale, subscribeForecast } from './helpers';
 
 @customElement('weather-card')
 export class WeatherCard extends LitElement implements LovelaceCard {
   // https://lit.dev/docs/components/properties/
-  @property({ attribute: false }) public hass?: HomeAssistant;
-  @property({ attribute: false }) public chartData?: ChartData;
-  // eslint-disable-next-line lit/attribute-names
-  @property({ type: Boolean }) public isPanel = false;
-  // eslint-disable-next-line lit/attribute-names
-  @property({ type: Boolean }) public editMode = false;
+  @property({ attribute: false })
+  public hass?: HomeAssistant;
 
-  @state() private _config!: WeatherCardConfig;
-  @state() private numberElements: number;
+  @property({ attribute: false })
+  public chartData?: ChartData;
+
+  @property({ type: Boolean })
+  // eslint-disable-next-line lit/attribute-names
+  public isPanel = false;
+
+  @property({ type: Boolean })
+  // eslint-disable-next-line lit/attribute-names
+  public editMode = false;
+
+  @state()
+  private _config!: WeatherCardConfig;
+  @state()
+  private numberElements: number;
 
   // https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-weather-forecast-card.ts
-  @state() private _subscribed?: Promise<() => void>;
-  @state() private _forecastEvent?: ForecastEvent;
+  @state()
+  private _subscribed?: Promise<() => void>;
+  @state()
+  private _forecastEvent?: ForecastEvent;
 
   constructor() {
     super();
