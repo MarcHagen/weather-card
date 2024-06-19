@@ -361,10 +361,10 @@ export class WeatherCard extends LitElement implements LovelaceCard {
     for (const d of forecast.forecast) {
       dateTime.push(new Date(d.datetime));
       tempHigh.push(d.temperature);
-      if (d.templow) {
+      if (d.templow !== undefined) {
         tempLow.push(d.templow);
       }
-      if (d.precipitation) {
+      if (d.precipitation !== undefined) {
         precip.push(d.precipitation);
       }
     }
