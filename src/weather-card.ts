@@ -446,6 +446,12 @@ export class WeatherCard extends LitElement implements LovelaceCard {
             grid: {
               display: false,
             },
+            adapters: {
+              date: {
+                locale: locale,
+                config: this.hass?.config,
+              },
+            },
           },
           DateAxis: {
             position: 'top',
