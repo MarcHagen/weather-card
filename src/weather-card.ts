@@ -403,6 +403,8 @@ export class WeatherCard extends LitElement implements LovelaceCard {
             label: localize('precip', locale),
             type: 'bar',
             data: precip,
+            maxBarThickness: 22,
+            barThickness: 'flex',
             yAxisID: 'PrecipAxis',
           },
         ],
