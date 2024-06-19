@@ -439,6 +439,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
           x: {
             type: 'time',
             display: false,
+            axis: 'x',
             ticks: {
               display: false,
             },
@@ -448,6 +449,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
           },
           DateAxis: {
             position: 'top',
+            axis: 'x',
             grid: {
               display: true,
               color: dividerColor,
@@ -469,6 +471,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
           },
           TempAxis: {
             position: 'left',
+            axis: 'y',
             grid: {
               display: true,
               color: dividerColor,
@@ -487,6 +490,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
           },
           PrecipAxis: {
             position: 'right',
+            axis: 'y',
             grid: {
               display: false,
               color: dividerColor,
