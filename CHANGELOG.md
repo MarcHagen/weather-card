@@ -3,14 +3,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
-## 1.7.2 - ?
+## 1.8.2 - 2024-09-26
+
+### 🧹 Cleanup
+- Package lock from yarn to pnpm
+- Bumped various build/dev packages
+
+---
+
+## 1.8.1 - 2024-06-20
+
+### 🔨 FIXED
+- Fix chart by @MarcHagen in #6
+
+---
+
+## 1.8.0 - 2024-06-10
+
+### 🔨 FIXED
+- Update card to work with 2024.4.0+ by @MarcHagen in #5
 
 ---
 
 ## 1.7.1 - 2021-05-30
 
 ### ✨ NEW
-- Adding precipitation probability (if exists in weather object)
+- Adding precipitation probability (if exists in a weather object)
 
 ### 🔨 FIXED
 - Language not getting updated. This was not properly initialized.
