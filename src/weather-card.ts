@@ -4,9 +4,9 @@ import { ChartData, ForecastEvent, WeatherCardConfig } from './types';
 import { HassEntity } from 'home-assistant-js-websocket/dist/types';
 import { TooltipItem } from 'chart.js';
 import { cardinalDirectionsIcon, weatherIconsDay, weatherIconsNight } from './const';
-import { customElement, property, state } from 'lit/decorators';
+import { customElement, property, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCard, LovelaceCardEditor, round } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
-import { fontString } from 'chart.js/helpers/helpers';
+import { fontString } from 'chart.js/helpers';
 import { getLocale, subscribeForecast } from './helpers';
 import { localize } from './localize/localize';
 import { style } from './style';
