@@ -12,20 +12,20 @@ But there is a newer version of the icons. These cannot be downloaded from but s
 Download the weather and weather-animated. These versions are included in this package.
 
 <p align="center" style="vertical-align: top">
-    <img src="./assets/table.gif" alt="card with table layout gif" width="400"/>
-    <img src="./assets/chart.gif" alt="card with chart layout gif" width="400"/>
+    <img src="https://github.com/marchagen/weather-card/raw/master/assets/table.gif" alt="card with table layout gif" width="400"/>
+    <img src="https://github.com/marchagen/weather-card/raw/master/assets/chart.gif" alt="card with chart layout gif" width="400"/>
 </p>
 
 Thanks for all picking this card up.
 
 # Installation:
 
-You have 3 options, HACS hosted or self hosted (manual). The first option needs internet and will update itself.
+You have three options, HACS hosted or self-hosted (manual). The first option needs the internet and will update itself.
 
 ## HACS
 
 The easiest way it's to [HACS](https://hacs.xyz/)
-Add the repos address in settings :
+Add the repo address in settings:
 https://github.com/MarcHagen/weather-card
 
 ## Hosted:
@@ -39,8 +39,8 @@ Add the following to resources in your lovelace config:
 
 ## Manual:
 
-1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card.js) to `/config/www/weather-card/`. (or an other folder in `/config/www/`)
-2. Save the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/weather-card/icons/` (or an other folder in `/config/www/`)
+1. Download the [weather-card.js](https://raw.githubusercontent.com/MarcHagen/weather-card/master/dist/weather-card.js) to `/config/www/weather-card/`. (or another folder in `/config/www/`)
+2. Save the [amCharts icons](https://www.amcharts.com/free-animated-svg-weather-icons/) (The contents of the folder "animated") under `/config/www/weather-card/icons/` (or another folder in `/config/www/`)
 
 Add the following to resources in your lovelace config:
 
@@ -61,7 +61,7 @@ entity_sun: sun.sun
 name: Optional name
 ```
 
-If you want to use your local icons add the location to the icons:
+If you want to use your local icons, add the location to the icons:
 
 ```yaml
 type: custom:weather-card
@@ -70,9 +70,9 @@ entity_sun: sun.sun
 icons: /local/weather-card/icons/animated/
 ```
 
-You can choose wich elements of the weather card you want to show:
+You can choose which elements of the weather card you want to show:
 
-The 3 different rows, being:
+The three different rows are:
 
 - The current weather icon, the current temperature and title
 - The details about the current weather
@@ -107,7 +107,7 @@ card_config_version: 2
 ### Editor
 For convenience’s sake, there is an editor, so you can visualy click.
 
-<img src="./assets/editor.png" alt="Weather card visual editor" width="700" />
+<img src="https://github.com/marchagen/weather-card/raw/master/assets/editor.png" alt="Weather card visual editor" width="700" />
 
 If you want to show the sunrise and sunset times, make sure the `sun` component is enabled:
 
@@ -118,7 +118,7 @@ sun:
 
 ## Dark Sky:
 
-When using Dark Sky you should put the mode to `daily` if you want a daily forecast with highs and lows.
+When using Dark Sky, you should put the mode to `daily` if you want a daily forecast with highs and lows.
 
 ```yaml
 # Example configuration.yaml entry
