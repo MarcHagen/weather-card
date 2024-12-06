@@ -25,8 +25,18 @@ const plugins = [
   typescript(),
   json(),
   babel({
+    include: ['node_modules/lit*/**', 'node_modules/@lit/**'],
     exclude: 'node_modules/**',
     babelHelpers: 'bundled',
+    plugins: [
+      [
+        '@babel/plugin-proposal-decorators',
+        {
+          legacy: true,
+        },
+      ],
+      '@babel/plugin-proposal-class-properties',
+    ],
   }),
   dev && serve(serveopts),
   !dev && terser(),

@@ -1,5 +1,5 @@
 import { LitElement, html, TemplateResult, CSSResult, css, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators';
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { HassCustomElement, WeatherCardConfig, WeatherCardConfigKeys } from './types';
