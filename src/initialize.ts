@@ -10,6 +10,7 @@ import { version } from '../package.json';
 });
 
 /* eslint no-console: 0 */
+// prettier-ignore
 console.info(
   `%c  WEATHER-CARD  \n%c Version: ${version} `,
   'color: orange; font-weight: bold; background: black',

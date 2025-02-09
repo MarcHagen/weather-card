@@ -56,6 +56,7 @@ const languages: { [key in Language]: LanguageEntry } = {
 
 const defaultLanguage: string = Language.ENGLISH.valueOf();
 
+// prettier-ignore
 export function localize(
   string: string,
   locale: FrontendLocaleData,
@@ -68,10 +69,10 @@ export function localize(
     if (locale.language === 'test') return 'TRANSLATED';
     translated = string.split('.').reduce((o: string, i: string) => o[i], languages[locale.language]);
     if (!translated) translated = string.split('.').reduce((o: string, i: string) => o[i], languages[defaultLanguage]);
-  } catch (e) {
+  } catch {
     try {
       translated = string.split('.').reduce((o, i) => o[i], languages[defaultLanguage]);
-    } catch (e) {
+    } catch {
       translated = '';
     }
   }

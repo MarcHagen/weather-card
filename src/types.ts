@@ -1,6 +1,21 @@
 import { LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
 import { HassEntityAttributeBase, HassEntityBase } from 'home-assistant-js-websocket';
-import type { ChartOptions as ChartJsChartOptions, ChartData as ChartJsChartData } from 'chart.js';
+import type {
+  // The series option types are defined with the SeriesOption suffix
+  BarSeriesOption,
+  LineSeriesOption,
+  CustomSeriesOption,
+} from 'echarts/charts';
+import type {
+  // The component option types are defined with the ComponentOption suffix
+  TooltipComponentOption,
+  DatasetComponentOption,
+  LegendComponentOption,
+  GridComponentOption,
+  DataZoomComponentOption,
+  VisualMapComponentOption,
+} from 'echarts/components';
+import type { ComposeOption } from 'echarts/core';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -22,6 +37,8 @@ export interface WeatherCardConfig extends LovelaceCardConfig {
   graph?: boolean;
   hidePrecipitation?: boolean;
 }
+
+// prettier-ignore
 export const WeatherCardConfigKeys: string[] = [
   'type',
   'entity_weather',
@@ -89,7 +106,21 @@ export interface HassCustomElement extends CustomElementConstructor {
   getConfigElement(): Promise<unknown>;
 }
 
+// Create an Option type with only the required components and charts via ComposeOption
+// prettier-ignore
+export type ECOption = ComposeOption<
+  BarSeriesOption |
+  LineSeriesOption |
+  CustomSeriesOption |
+  TooltipComponentOption |
+  DatasetComponentOption |
+  LegendComponentOption |
+  GridComponentOption |
+  DataZoomComponentOption |
+  VisualMapComponentOption
+>;
+
 export interface ChartData {
-  data: ChartJsChartData;
-  options: ChartJsChartOptions;
+  data: (LineSeriesOption | BarSeriesOption)[];
+  options: ECOption;
 }

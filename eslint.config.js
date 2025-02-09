@@ -1,29 +1,41 @@
 // @ts-check
 
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import lisPlugin from 'eslint-plugin-lit';
-import litA11yPlugin from 'eslint-plugin-lit-a11y';
+import js from '@eslint/js';
+import typescriptEslint from '@typescript-eslint/eslint-plugin';
+import lit from 'eslint-plugin-lit';
+import litA11Y from 'eslint-plugin-lit-a11y';
+import prettier from 'eslint-plugin-prettier';
+import { FlatCompat } from '@eslint/eslintrc';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-export default tseslint.config(
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
+});
+
+export default [
   {
-    ignores: ['dist/**/*'],
+    ignores: ['**/.gitignore', 'dist/*', 'node_modules/*'],
   },
-  eslint.configs.recommended,
-  eslintPluginPrettierRecommended,
-  ...tseslint.configs.recommended,
-  ...tseslint.configs.stylistic,
+  ...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:lit/recommended', 'plugin:lit-a11y/recommended', 'plugin:prettier/recommended'),
   {
-    plugins: { lit: lisPlugin },
+    plugins: {
+      '@typescript-eslint': typescriptEslint,
+      lit,
+      prettier,
+      'lit-a11y': litA11Y,
+    },
     rules: {
-      ...lisPlugin.configs.all.rules,
+      'prettier/prettier': [
+        'warn',
+        {
+          printWidth: 230,
+        },
+      ],
     },
   },
-  {
-    plugins: { 'lit-a11y': litA11yPlugin },
-    rules: {
-      ...litA11yPlugin.configs.recommended.rules,
-    },
-  },
-);
+];

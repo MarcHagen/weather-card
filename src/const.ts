@@ -1,3 +1,4 @@
+// prettier-ignore
 export const cardinalDirectionsIcon = [
   'mdi:arrow-down',
   'mdi:arrow-bottom-left',

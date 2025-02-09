@@ -1,18 +1,16 @@
 import { CSSResult, html, LitElement, nothing, PropertyValues, TemplateResult } from 'lit';
-import { Chart as ChartType } from 'chart.js/dist/types';
 import { ChartData, ForecastEvent, WeatherCardConfig } from './types';
 import { HassEntity } from 'home-assistant-js-websocket/dist/types';
-import { TooltipItem } from 'chart.js';
 import { cardinalDirectionsIcon, weatherIconsDay, weatherIconsNight } from './const';
 import { customElement, property, state } from 'lit/decorators.js';
 import { fireEvent, HomeAssistant, LovelaceCard, LovelaceCardEditor, round } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types
-import { fontString } from 'chart.js/helpers';
 import { getLocale, subscribeForecast } from './helpers';
 import { localize } from './localize/localize';
 import { style } from './style';
 
 import './style';
 import './initialize';
+import { CallbackDataParams, TooltipFormatterCallback, TooltipPositionCallbackParams } from 'echarts/types/dist/shared';
 
 @customElement('weather-card')
 export class WeatherCard extends LitElement implements LovelaceCard {
@@ -24,11 +22,9 @@ export class WeatherCard extends LitElement implements LovelaceCard {
   public chartData?: ChartData;
 
   @property({ type: Boolean })
-  // eslint-disable-next-line lit/attribute-names
   public isPanel = false;
 
   @property({ type: Boolean })
-  // eslint-disable-next-line lit/attribute-names
   public editMode = false;
 
   @state()
@@ -66,10 +62,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
   }
 
   _needForecastSubscription(): boolean {
-    return (this._config &&
-      this._config.entity_weather &&
-      this._config.forecast_type &&
-      this._config.forecast_type !== 'legacy') as boolean;
+    return (this._config && this._config.entity_weather && this._config.forecast_type && this._config.forecast_type !== 'legacy') as boolean;
   }
 
   _unsubscribeForecastEvents() {
@@ -88,14 +81,9 @@ export class WeatherCard extends LitElement implements LovelaceCard {
     // https://github/homeassistant/frontend/src/panels/lovelace/cards/hui-weather-forecast-card.ts
     // Note: forecast_type required to be set.
     // Note: forecast_type daily supported by this card but not hourly nor twice_daily
-    this._subscribed = subscribeForecast(
-      this.hass!,
-      this._config!.entity_weather,
-      this._config!.forecast_type as 'daily' | 'hourly' | 'twice_daily',
-      (event) => {
-        this._forecastEvent = event;
-      },
-    );
+    this._subscribed = subscribeForecast(this.hass!, this._config!.entity_weather, this._config!.forecast_type as 'daily' | 'hourly' | 'twice_daily', (event) => {
+      this._forecastEvent = event;
+    });
   }
 
   connectedCallback() {
@@ -168,8 +156,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
 
     return html`
       <ha-card @click=${this._handleClick}>
-        ${this._config.current !== false ? this.renderCurrent() : ''}
-        ${this._config.details !== false ? this.renderDetails() : ''}
+        ${this._config.current !== false ? this.renderCurrent() : ''} ${this._config.details !== false ? this.renderDetails() : ''}
         ${this._config.forecast !== false
           ? this.renderForecast(
               this._forecastEvent || {
@@ -196,20 +183,9 @@ export class WeatherCard extends LitElement implements LovelaceCard {
 
     return html`
       <div class="current ${this.numberElements > 1 ? 'spacer' : ''}">
-        <span
-          class="icon bigger"
-          style="background: none, url('${this.getWeatherIcon(
-            weatherObj.state.toLowerCase(),
-            this.hass!.states[this._config.entity_sun],
-          )}') no-repeat; background-size: contain;"
-          >${weatherObj.state}</span
-        >
+        <span class="icon bigger" style="background: none, url('${this.getWeatherIcon(weatherObj.state.toLowerCase(), this.hass!.states[this._config.entity_sun])}') no-repeat; background-size: contain;">${weatherObj.state}</span>
         ${this._config.name ? html`<span class="title"> ${this._config.name} </span>` : ''}
-        <span class="temp"
-          >${this.getUnit('temperature') == '°F'
-            ? Math.round(weatherObj.attributes.temperature)
-            : weatherObj.attributes.temperature}</span
-        >
+        <span class="temp">${this.getUnit('temperature') == '°F' ? Math.round(weatherObj.attributes.temperature) : weatherObj.attributes.temperature}</span>
         <span class="tempc"> ${this.getUnit('temperature')}</span>
       </div>
     `;
@@ -241,10 +217,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
         </li>
         <li>
           ${WeatherCard.getWindDir(this.hass!, weatherObj.attributes.wind_bearing)}
-          <ha-icon
-            style="margin-left: 0;"
-            .icon=${WeatherCard.getWindDirIcon(weatherObj.attributes.wind_bearing)}
-          ></ha-icon>
+          <ha-icon style="margin-left: 0;" .icon=${WeatherCard.getWindDirIcon(weatherObj.attributes.wind_bearing)}></ha-icon>
           ${weatherObj.attributes.wind_speed}
           <span class="unit">${this.getUnit('length')}/h</span>${this.getWindForce()}
           <ha-icon icon="mdi:weather-windy"></ha-icon>
@@ -292,45 +265,22 @@ export class WeatherCard extends LitElement implements LovelaceCard {
   private renderForecastTable(forecast: ForecastEvent): TemplateResult | typeof nothing {
     if (!forecast || !forecast.forecast || forecast.forecast.length === 0) return nothing;
 
-    const listItems = forecast.forecast
-      .slice(0, this._config.forecastMaxColumn ? this._config.forecastMaxColumn : 5)
-      .map(
-        (daily) => html`
-          <div class="day">
-            <div class="dayname">${this.getDateString(forecast, daily.datetime)}</div>
-            ${daily.condition
-              ? html` <i
-                  class="icon"
-                  style="background: none, url('${this.getWeatherIcon(
-                    daily.condition.toLowerCase(),
-                    this.hass!.states[this._config.entity_sun],
-                  )}') no-repeat; background-size: contain"
-                ></i>`
-              : ''}
-            <div class="highTemp">${daily.temperature}${this.getUnit('temperature')}</div>
-            ${daily.templow !== undefined
-              ? html` <div class="lowTemp">${daily.templow}${this.getUnit('temperature')}</div> `
-              : ''}
-            ${!this._config.hidePrecipitation && daily.precipitation !== undefined && daily.precipitation !== null
-              ? html`
-                  <div class="precipitation">
-                    ${Math.round(daily.precipitation * 10) / 10} ${this.getUnit('precipitation')}
-                  </div>
-                `
-              : ''}
-            ${!this._config.hidePrecipitation &&
-            daily.precipitation_probability !== undefined &&
-            daily.precipitation_probability !== null
-              ? html`
-                  <div class="precipitation_probability">
-                    ${Math.round(daily.precipitation_probability * 10) / 10}
-                    ${this.getUnit('precipitation_probability')}
-                  </div>
-                `
-              : ''}
-          </div>
-        `,
-      );
+    const listItems = forecast.forecast.slice(0, this._config.forecastMaxColumn ? this._config.forecastMaxColumn : 5).map(
+      (daily) => html`
+        <div class="day">
+          <div class="dayname">${this.getDateString(forecast, daily.datetime)}</div>
+          ${daily.condition ? html` <i class="icon" style="background: none, url('${this.getWeatherIcon(daily.condition.toLowerCase(), this.hass!.states[this._config.entity_sun])}') no-repeat; background-size: contain"></i>` : ''}
+          <div class="highTemp">${daily.temperature}${this.getUnit('temperature')}</div>
+          ${daily.templow !== undefined ? html` <div class="lowTemp">${daily.templow}${this.getUnit('temperature')}</div> ` : ''}
+          ${!this._config.hidePrecipitation && daily.precipitation !== undefined && daily.precipitation !== null
+            ? html` <div class="precipitation">${Math.round(daily.precipitation * 10) / 10} ${this.getUnit('precipitation')}</div> `
+            : ''}
+          ${!this._config.hidePrecipitation && daily.precipitation_probability !== undefined && daily.precipitation_probability !== null
+            ? html` <div class="precipitation_probability">${Math.round(daily.precipitation_probability * 10) / 10} ${this.getUnit('precipitation_probability')}</div> `
+            : ''}
+        </div>
+      `,
+    );
     return html` <div class="forecast clear ${this.numberElements > 1 ? 'spacer' : ''}">${listItems}</div>`;
   }
 
@@ -339,24 +289,11 @@ export class WeatherCard extends LitElement implements LovelaceCard {
 
     this.drawChart(forecast);
     const listItems = forecast.forecast.map((daily) =>
-      daily.condition
-        ? html` <i
-            class="icon"
-            style="background: none, url('${this.getWeatherIcon(
-              daily.condition.toLowerCase(),
-              this.hass!.states[this._config.entity_sun],
-            )}') no-repeat; background-size: contain"
-          ></i>`
-        : '',
+      daily.condition ? html` <i class="icon" style="background: none, url('${this.getWeatherIcon(daily.condition.toLowerCase(), this.hass!.states[this._config.entity_sun])}') no-repeat; background-size: contain"></i>` : '',
     );
     return html`
       <div class="clear ${this.numberElements > 1 ? 'spacer' : ''}">
-        <ha-chart-base
-          .data=${this.chartData!.data}
-          .options=${this.chartData!.options}
-          .hass=${this.hass}
-          chart-type="bar"
-        ></ha-chart-base>
+        <ha-chart-base .data=${this.chartData!.data} .options=${this.chartData!.options} .hass=${this.hass}></ha-chart-base>
       </div>
       <div class="conditions">${listItems}</div>
     `;
@@ -365,13 +302,13 @@ export class WeatherCard extends LitElement implements LovelaceCard {
   private drawChart(forecast: ForecastEvent): void {
     if (!forecast.forecast || forecast.forecast.length === 0) return;
 
-    const dateTime: Date[] = [];
+    const dateTime: string[] = [];
     const tempHigh: number[] = [];
     const tempLow: number[] = [];
     const precip: number[] = [];
 
     for (const d of forecast.forecast) {
-      dateTime.push(new Date(d.datetime));
+      dateTime.push(this.getDateString(forecast, d.datetime));
       tempHigh.push(d.temperature);
       if (d.templow !== undefined) {
         tempLow.push(d.templow);
@@ -381,190 +318,102 @@ export class WeatherCard extends LitElement implements LovelaceCard {
       }
     }
     const style = getComputedStyle(document.body);
-    const textColor = style.getPropertyValue('--primary-text-color');
     const dividerColor = style.getPropertyValue('--divider-color');
     const locale = getLocale(this.hass!);
 
     this.chartData = {
-      data: {
-        labels: dateTime,
-        datasets: [
-          {
-            label: forecast.type === 'hourly' ? localize('temp', locale) : localize('tempHi', locale),
-            type: 'line',
-            data: tempHigh,
-            yAxisID: 'TempAxis',
-            borderWidth: 2.0,
-            tension: 0.4,
-            pointRadius: 0.0,
-            pointHitRadius: 5.0,
-            fill: false,
+      data: [
+        {
+          name: forecast.type === 'hourly' ? localize('temp', locale) : localize('tempHi', locale),
+          type: 'line',
+          data: tempHigh,
+          lineStyle: {
+            width: 2.0,
+            color: dividerColor,
           },
-          {
-            label: localize('tempLo', locale),
-            type: 'line',
-            data: tempLow,
-            yAxisID: 'TempAxis',
-            borderWidth: 2.0,
-            tension: 0.4,
-            pointRadius: 0.0,
-            pointHitRadius: 5.0,
-            fill: false,
+          smooth: true,
+          yAxisId: 'TempAxis',
+        },
+        {
+          name: localize('tempLo', locale),
+          type: 'line',
+          data: tempLow,
+          lineStyle: {
+            width: 2.0,
+            color: dividerColor,
           },
+          smooth: true,
+          yAxisId: 'TempAxis',
+        },
+        {
+          name: localize('precip', locale),
+          type: 'bar',
+          data: precip,
+          barMaxWidth: 22,
+          color: dividerColor,
+          yAxisId: 'PrecipAxis',
+        },
+      ],
+
+      options: {
+        animation: false,
+        animationDurationUpdate: 0,
+        grid: {
+          top: 20,
+          left: 20,
+          right: 20,
+          bottom: 5,
+          // width: '100%',
+          // height: '100%',
+        },
+        tooltip: {
+          trigger: 'axis',
+          formatter: this.renderTooltip.bind(this),
+        },
+        xAxis: [
           {
-            label: localize('precip', locale),
-            type: 'bar',
-            data: precip,
-            maxBarThickness: 22,
-            barThickness: 'flex',
-            yAxisID: 'PrecipAxis',
+            id: 'DateAxis',
+            type: 'category',
+            position: 'top',
+            data: dateTime,
+            boundaryGap: false,
           },
         ],
-      },
-      options: {
-        animation: {
-          duration: 300,
-          easing: 'linear',
-          onComplete: function (this: ChartType): void {
-            const ctx = this.ctx;
-            ctx.fillStyle = textColor;
-            const fontSize = 10;
-            const fontStyle = 'normal';
-            const fontFamily = 'Roboto';
-            ctx.font = fontString(fontSize, fontStyle, fontFamily);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            const meta = this.getDatasetMeta(2);
-            meta.data.forEach((bar, index) => {
-              // @ts-expect-error 2339
-              const data = (Math.round(this.data.datasets[2].data[index] * 10) / 10).toFixed(1);
-              const { barX, barY } = bar.getProps(['x', 'y']);
-              ctx.fillText(data, barX, barY - 5);
-            });
-          },
-        },
-        plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            mode: 'index',
-            callbacks: {
-              title: (datasets): string => {
-                const item = datasets[0];
-                const date = new Date(item.parsed.x);
-                return date.toLocaleDateString(locale.language, {
-                  month: 'long',
-                  day: 'numeric',
-                  weekday: 'long',
-                  hour: 'numeric',
-                  minute: 'numeric',
-                });
-              },
-              label: (tooltipItem: TooltipItem<'line' | 'bar'>) => {
-                if (tooltipItem.datasetIndex === 2) {
-                  return (
-                    tooltipItem.dataset.label +
-                    ': ' +
-                    (tooltipItem.parsed.y
-                      ? tooltipItem.parsed.y + ' ' + this.getUnit('precipitation')
-                      : '0 ' + this.getUnit('precipitation'))
-                  );
-                }
-
-                return tooltipItem.dataset.label + ': ' + tooltipItem.parsed.y + ' ' + this.getUnit('temperature');
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            type: 'time',
-            display: false,
-            axis: 'x',
-            ticks: {
-              display: false,
-            },
-            grid: {
-              display: false,
-            },
-            adapters: {
-              date: {
-                locale: locale,
-                config: this.hass?.config,
-              },
-            },
-          },
-          DateAxis: {
-            position: 'top',
-            axis: 'x',
-            grid: {
-              display: true,
-              color: dividerColor,
-            },
-            border: {
-              display: false,
-              dash: [1, 3],
-            },
-            ticks: {
-              display: true,
-              source: 'labels',
-              autoSkip: true,
-              color: textColor,
-              maxRotation: 0,
-              callback: (tickValue: number | string): string => {
-                return this.getDateString(forecast, tickValue.toString());
-              },
-            },
-          },
-          TempAxis: {
+        yAxis: [
+          {
+            id: 'TempAxis',
+            type: 'value',
             position: 'left',
-            axis: 'y',
-            grid: {
-              display: true,
-              color: dividerColor,
-            },
-            border: {
-              display: false,
-              dash: [1, 3],
-            },
-            ticks: {
-              display: true,
-              color: textColor,
-            },
-            afterFit: (scaleInstance): void => {
-              scaleInstance.width = 28;
-            },
+            show: true,
+            max: (value) => value.max + 4,
           },
-          PrecipAxis: {
+          {
+            id: 'PrecipAxis',
+            type: 'value',
             position: 'right',
-            axis: 'y',
-            grid: {
-              display: false,
-              color: dividerColor,
-            },
-            border: {
-              display: false,
-            },
             min: 0,
-            suggestedMax: 20,
-            ticks: {
-              display: false,
-              color: textColor,
-            },
-            afterFit: (scaleInstance): void => {
-              scaleInstance.width = 15;
-            },
+            max: 20,
+            show: false,
           },
-        },
+        ],
       },
     };
   }
 
+  private renderTooltip: TooltipFormatterCallback<TooltipPositionCallbackParams> = (params: TooltipPositionCallbackParams) => {
+    if (!Array.isArray(params)) {
+      return `${params.marker} ${params.seriesName}: ${params.value} ${this.getUnit(params.seriesName === 'Precipitations' ? 'precipitation' : 'temperature')}`;
+    }
+
+    return params
+      .map((param: CallbackDataParams) => {
+        return `${param.marker} ${param.seriesName}: ${param.value} ${this.getUnit(param.seriesName === 'Precipitations' ? 'precipitation' : 'temperature')}`;
+      })
+      .join('<br>');
+  };
+
   private getWeatherIcon(condition: string, sun: HassEntity | null | undefined): string {
-    const iconPath = this._config.icons
-      ? this._config.icons
-      : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/animated/';
+    const iconPath = this._config.icons ? this._config.icons : 'https://cdn.jsdelivr.net/gh/MarcHagen/weather-card/dist/icons/animated/';
     const sunIcon = sun && sun.state === 'below_horizon' ? weatherIconsNight[condition] : weatherIconsDay[condition];
     return `${iconPath}${sunIcon}.svg`;
   }
@@ -589,9 +438,7 @@ export class WeatherCard extends LitElement implements LovelaceCard {
     return html` | ${force} <span class="unit">Bft</span>`;
   }
 
-  private getUnit(
-    measure: 'air_pressure' | 'length' | 'precipitation' | 'intensity' | 'precipitation_probability' | string,
-  ): string {
+  private getUnit(measure: 'temperature' | 'air_pressure' | 'length' | 'precipitation' | 'intensity' | 'precipitation_probability' | string): string {
     const lengthUnit = this.hass!.config.unit_system.length;
     const locale = getLocale(this.hass!);
     switch (measure) {

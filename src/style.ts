@@ -167,7 +167,7 @@ export const style = css`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0px -12px 0px 5px;
+    margin: 0 -5px 0 -4px;
   }
 
   .conditions .icon {

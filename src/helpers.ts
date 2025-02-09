@@ -8,6 +8,7 @@ export const getLocale = (hass: HomeAssistant): FrontendLocaleData =>
     number_format: NumberFormat.system,
   };
 
+// prettier-ignore
 export const subscribeForecast = (
   hass: HomeAssistant,
   entity_id: string,
