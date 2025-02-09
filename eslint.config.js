@@ -21,19 +21,21 @@ export default [
   {
     ignores: ['**/.gitignore', 'dist/*', 'node_modules/*'],
   },
-  ...compat.extends(
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:lit/recommended',
-    'plugin:lit-a11y/recommended',
-    'plugin:prettier/recommended',
-  ),
+  ...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:lit/recommended', 'plugin:lit-a11y/recommended', 'plugin:prettier/recommended'),
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
       lit,
       prettier,
       'lit-a11y': litA11Y,
+    },
+    rules: {
+      'prettier/prettier': [
+        'warn',
+        {
+          printWidth: 230,
+        },
+      ],
     },
   },
 ];
