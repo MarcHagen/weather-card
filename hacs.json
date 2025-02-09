@@ -1,8 +1,8 @@
 {
     "name": "Lovelace animated weather card",
     "filename": "weather-card.js",
-    "hacs": "1.2.0",
-    "homeassistant": " 2024.4.0",
+    "hacs": "2.0.0",
+    "homeassistant": " 2025.2.0",
     "render_readme": true,
     "hide_default_branch": true
 }
