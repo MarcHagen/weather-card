@@ -318,7 +318,6 @@ export class WeatherCard extends LitElement implements LovelaceCard {
       }
     }
     const style = getComputedStyle(document.body);
-    const textColor = style.getPropertyValue('--primary-text-color');
     const dividerColor = style.getPropertyValue('--divider-color');
     const locale = getLocale(this.hass!);
 

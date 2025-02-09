@@ -37,6 +37,8 @@ export interface WeatherCardConfig extends LovelaceCardConfig {
   graph?: boolean;
   hidePrecipitation?: boolean;
 }
+
+// prettier-ignore
 export const WeatherCardConfigKeys: string[] = [
   'type',
   'entity_weather',
@@ -105,16 +107,17 @@ export interface HassCustomElement extends CustomElementConstructor {
 }
 
 // Create an Option type with only the required components and charts via ComposeOption
+// prettier-ignore
 export type ECOption = ComposeOption<
-  | BarSeriesOption
-  | LineSeriesOption
-  | CustomSeriesOption
-  | TooltipComponentOption
-  | DatasetComponentOption
-  | LegendComponentOption
-  | GridComponentOption
-  | DataZoomComponentOption
-  | VisualMapComponentOption
+  BarSeriesOption |
+  LineSeriesOption |
+  CustomSeriesOption |
+  TooltipComponentOption |
+  DatasetComponentOption |
+  LegendComponentOption |
+  GridComponentOption |
+  DataZoomComponentOption |
+  VisualMapComponentOption
 >;
 
 export interface ChartData {

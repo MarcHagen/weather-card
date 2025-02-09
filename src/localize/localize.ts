@@ -56,6 +56,7 @@ const languages: { [key in Language]: LanguageEntry } = {
 
 const defaultLanguage: string = Language.ENGLISH.valueOf();
 
+// prettier-ignore
 export function localize(
   string: string,
   locale: FrontendLocaleData,
