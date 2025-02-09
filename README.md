@@ -12,8 +12,8 @@ But there is a newer version of the icons. These cannot be downloaded from but s
 Download the weather and weather-animated. These versions are included in this package.
 
 <p align="center" style="vertical-align: top">
-    <img src="https://github.com/marchagen/weather-card/raw/master/assets/table.gif" alt="card with table layout gif" width="400"/>
-    <img src="https://github.com/marchagen/weather-card/raw/master/assets/chart.gif" alt="card with chart layout gif" width="400"/>
+    <img src="https://github.com/marchagen/weather-card/raw/master/assets/table.gif?raw=true" alt="card with table layout gif" width="400"/>
+    <img src="https://github.com/marchagen/weather-card/raw/master/assets/chart.gif?raw=true" alt="card with chart layout gif" width="400"/>
 </p>
 
 Thanks for all picking this card up.
@@ -107,7 +107,7 @@ card_config_version: 2
 ### Editor
 For convenience’s sake, there is an editor, so you can visualy click.
 
-<img src="https://github.com/marchagen/weather-card/raw/master/assets/editor.png" alt="Weather card visual editor" width="700" />
+<img src="https://github.com/marchagen/weather-card/raw/master/assets/editor.png?raw=true" alt="Weather card visual editor" width="700" />
 
 If you want to show the sunrise and sunset times, make sure the `sun` component is enabled:
 
