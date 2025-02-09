@@ -3,7 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
-## 1.9.0 - 
+## 1.9.x - ?
+
+### 🔨 FIXED
+- ? 
+
+## 1.9.0 - 2025-02-09
 
 ### 🔨 FIXED
 - Chart for Home Assistant 2025.2.0+
