@@ -42,7 +42,7 @@
     "eslint-plugin-lit-a11y": "4.1.4",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "3.4.2",
-    "rollup": "^4.28.1",
+    "rollup": "^4.59.0",
     "rollup-plugin-serve": "^1.1.1",
     "rollup-plugin-typescript2": "^0.36.0",
     "ts-lit-plugin": "2.0.2",
